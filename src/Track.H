@@ -56,8 +56,13 @@ class CTrack {
 
 		//###################################################################
 		// TODO: you might want to do this differently
+
+
 		//###################################################################
+
+
 		// the state of the train - basically, all I need to remember is where
 		// it is in parameter space
-		float trainU;
+		float trainU = 0.0f;
+		unsigned int TurnCounter = 0;
 };

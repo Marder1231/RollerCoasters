@@ -197,6 +197,12 @@ advanceTrain(float dir)
 {
 	//#####################################################################
 	// TODO: make this work for your train
+	trainView->m_pTrack->trainU += speed->value() * (dir / m_Track.points.size() / trainView->DIVIDE_LINE / 10);
+	if (trainView->m_pTrack->trainU >= 1.0f)
+	{
+		trainView->m_pTrack->TurnCounter++;
+		trainView->m_pTrack->trainU -= 1.0f;
+	}
 	//#####################################################################
 #ifdef EXAMPLE_SOLUTION
 	// note - we give a little bit more example code here than normal,

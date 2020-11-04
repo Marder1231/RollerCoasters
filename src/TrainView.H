@@ -50,6 +50,38 @@ class CTrack;
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
+#include "Utilities/Pnt3f.H"
+
+class Train
+{
+public:
+	Train()
+	{
+		height = 5;
+		width = 3;
+		length = 5;
+
+		WPos.x = 0;
+		WPos.y = 0;
+		WPos.z = 0;
+
+		WOrient.x = 0;
+		WOrient.y = 0;
+		WOrient.z = 0;
+		
+		ViewDir.x = 0;
+		ViewDir.y = 0;
+		ViewDir.z = 0;
+	}
+
+	float height = 5;
+	float width = 3;
+	float length = 5;
+
+	Pnt3f WPos;
+	Pnt3f WOrient;
+	Pnt3f ViewDir;
+};
 
 class TrainView : public Fl_Gl_Window
 {
@@ -76,10 +108,15 @@ class TrainView : public Fl_Gl_Window
 		// pick a point (for when the mouse goes down)
 		void doPick();
 
+		void GetPos(float const t, Pnt3f& pos, Pnt3f& orient);
+
+		Train MainTrain;
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
 
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
+
+		int DIVIDE_LINE = 10;
 };

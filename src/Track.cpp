@@ -56,6 +56,7 @@ resetPoints()
 
 	// we had better put the train back at the start of the track...
 	trainU = 0.0;
+	TurnCounter = 0;
 }
 
 //****************************************************************************

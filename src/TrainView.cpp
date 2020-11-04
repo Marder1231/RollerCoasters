@@ -29,6 +29,8 @@
 
 // we will need OpenGL, and OpenGL needs windows.h
 #include <windows.h>
+#include <iostream>
+
 //#include "GL/gl.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -274,6 +276,15 @@ void TrainView::draw()
 	glEnable(GL_LIGHTING);
 	setupObjects();
 
+	Pnt3f trainPos;
+	Pnt3f trainOrient;
+
+	GetPos(m_pTrack->trainU + m_pTrack->TurnCounter, trainPos, trainOrient);
+
+	MainTrain.ViewDir = trainPos - MainTrain.WPos;
+	MainTrain.WPos = trainPos;
+	MainTrain.WOrient = trainOrient;
+
 	drawStuff();
 
 	// this time drawing is for shadows (except for top view)
@@ -326,9 +337,136 @@ setProjection()
 	// put code for train view projection here!	
 	//####################################################################
 	else {
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		float aspect = (float)w() / h();
+		gluPerspective(60, aspect, 0.01, 200);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+
+		float viewer_pos[3] = { MainTrain.WPos.x, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length};
+
+		gluLookAt(viewer_pos[0], viewer_pos[1], viewer_pos[2],
+			viewer_pos[0] + MainTrain.ViewDir.x,
+			viewer_pos[1] + MainTrain.ViewDir.y,
+			viewer_pos[2] + MainTrain.ViewDir.z,
+			0.0, 1.0, 0.0);
+
+
 #ifdef EXAMPLE_SOLUTION
 		trainCamView(this,aspect);
 #endif
+	}
+}
+
+void TrainView::GetPos(float const t, Pnt3f& pos, Pnt3f& orient)
+{
+	if (tw->splineBrowser->selected(1) == true)
+	{
+		// pos
+		Pnt3f cp1 = m_pTrack->points[int(t) % m_pTrack->points.size()].pos;
+		Pnt3f cp2 = m_pTrack->points[(int(t) + 1) % m_pTrack->points.size()].pos;
+
+		//orient
+		Pnt3f cp1o = m_pTrack->points[int(t) % m_pTrack->points.size()].orient;
+		Pnt3f cp2o = m_pTrack->points[(int(t) + 1) % m_pTrack->points.size()].orient;
+
+		float interval = t - int(t);
+
+		pos = (1 - interval) * cp1 + interval * cp2;
+		orient = (1 - interval) * cp1o + interval * cp2o;
+		orient.normalize();
+	}
+	else if (tw->splineBrowser->selected(2) == true)
+	{
+		// pos
+		ControlPoint cp1 = m_pTrack->points[int(t) % m_pTrack->points.size()];
+		ControlPoint cp2 = m_pTrack->points[(int(t) + 1) % m_pTrack->points.size()];
+		ControlPoint cp3 = m_pTrack->points[(int(t) + 2) % m_pTrack->points.size()];
+		ControlPoint cp4 = m_pTrack->points[(int(t) + 3) % m_pTrack->points.size()];
+
+		float interval = t - int(t);
+
+		glm::mat4x3 matG =
+		{
+			cp1.pos.x, cp1.pos.y, cp1.pos.z,
+			cp2.pos.x, cp2.pos.y, cp2.pos.z,
+			cp3.pos.x, cp3.pos.y, cp3.pos.z,
+			cp4.pos.x, cp4.pos.y, cp4.pos.z,
+		};		
+		glm::mat4x3 matO =
+		{
+			cp1.orient.x, cp1.orient.y, cp1.orient.z,
+			cp2.orient.x, cp2.orient.y, cp2.orient.z,
+			cp3.orient.x, cp3.orient.y, cp3.orient.z,
+			cp4.orient.x, cp4.orient.y, cp4.orient.z,
+		};
+		glm::mat4x4 matM =
+		{
+			-0.5f, 1.5f, -1.5f, 0.5f, 
+			1, -2.5f, 2, -0.5f, 
+			-0.5f, 0, 0.5f, 0, 
+			0, 1, 0, 0
+		};
+		glm::fvec4 vecT = { interval * interval * interval, interval * interval, interval, 1 };
+
+		glm::fvec3 qt = matG * matM * vecT;
+		glm::fvec3 ot = matO * matM * vecT;
+
+		pos.x = qt.x;
+		pos.y = qt.y;
+		pos.z = qt.z;
+		orient.x = ot.x;
+		orient.y = ot.y;
+		orient.z = ot.z;
+	}
+	else if (tw->splineBrowser->selected(3) == true)
+	{
+		// pos
+		ControlPoint cp1 = m_pTrack->points[int(t) % m_pTrack->points.size()];
+		ControlPoint cp2 = m_pTrack->points[(int(t) + 1) % m_pTrack->points.size()];
+		ControlPoint cp3 = m_pTrack->points[(int(t) + 2) % m_pTrack->points.size()];
+		ControlPoint cp4 = m_pTrack->points[(int(t) + 3) % m_pTrack->points.size()];
+
+		float interval = t - int(t);
+
+		glm::mat4x3 matG =
+		{
+			cp1.pos.x, cp1.pos.y, cp1.pos.z,
+			cp2.pos.x, cp2.pos.y, cp2.pos.z,
+			cp3.pos.x, cp3.pos.y, cp3.pos.z,
+			cp4.pos.x, cp4.pos.y, cp4.pos.z,
+		};
+		glm::mat4x3 matO =
+		{
+			cp1.orient.x, cp1.orient.y, cp1.orient.z,
+			cp2.orient.x, cp2.orient.y, cp2.orient.z,
+			cp3.orient.x, cp3.orient.y, cp3.orient.z,
+			cp4.orient.x, cp4.orient.y, cp4.orient.z,
+		};
+		glm::mat4x4 matM =
+		{
+			-1 / 6.0f, 3 / 6.0f, -3 / 6.0f, 1 / 6.0f,
+			3 / 6.0f, -6 / 6.0f, 3 / 6.0f, 0,
+			-3 / 6.0f, 0, 3 / 6.0f, 0,
+			1 / 6.0f, 4 / 6.0f, 1 / 6.0f, 0
+		};
+		glm::fvec4 vecT = { interval * interval * interval, interval * interval, interval, 1 };
+
+		glm::fvec3 qt = matG * matM * vecT;
+		glm::fvec3 ot = matO * matM * vecT;
+
+		pos.x = qt.x;
+		pos.y = qt.y;
+		pos.z = qt.z;
+		orient.x = ot.x;
+		orient.y = ot.y;
+		orient.z = ot.z;
 	}
 }
 
@@ -350,9 +488,9 @@ void TrainView::drawStuff(bool doingShadows)
 	// don't draw the control points if you're driving 
 	// (otherwise you get sea-sick as you drive through them)
 	if (!tw->trainCam->value()) {
-		for(size_t i=0; i<m_pTrack->points.size(); ++i) {
+		for (size_t i = 0; i < m_pTrack->points.size(); ++i) {
 			if (!doingShadows) {
-				if ( ((int) i) != selectedCube)
+				if (((int)i) != selectedCube)
 					glColor3ub(240, 60, 60);
 				else
 					glColor3ub(240, 240, 30);
@@ -363,6 +501,55 @@ void TrainView::drawStuff(bool doingShadows)
 	// draw the track
 	//####################################################################
 	// TODO: 
+
+	Pnt3f cpS;
+	Pnt3f cpSo;
+
+	GetPos(0, cpS, cpSo);
+
+	for (int i = 0; i < m_pTrack->points.size(); i++)
+	{
+		float t = i;
+		float percent = 1.0f / DIVIDE_LINE;
+
+		for (int j = 0; j < DIVIDE_LINE; j++)
+		{
+			t += percent;
+			float interval = t - int(t);
+
+			Pnt3f cpN;
+			Pnt3f cpNo;
+			GetPos(t, cpN, cpNo);
+
+			Pnt3f cross = (cpN - cpS) * cpNo;
+			cross.normalize();
+			cross = cross * 2.5f;
+
+			glLineWidth(3);
+			if (!doingShadows)
+				glColor3ub(32, 32, 64);
+
+			glLineWidth(3);
+			glBegin(GL_LINES);
+			glVertex3f(cpS.x + cross.x, cpS.y + cross.y, cpS.z + cross.z);
+			glVertex3f(cpN.x + cross.x, cpN.y + cross.y, cpN.z + cross.z);
+			glVertex3f(cpS.x - cross.x, cpS.y - cross.y, cpS.z - cross.z);
+			glVertex3f(cpN.x - cross.x, cpN.y - cross.y, cpN.z - cross.z);
+			glEnd();
+
+			glBegin(GL_QUADS);
+			glColor3f(0, 0, 0);
+			glVertex3f(cpS.x + 2, cpS.y, cpS.z + 2);
+			glVertex3f(cpS.x + 2, cpS.y, cpS.z - 2);
+			glVertex3f(cpS.x - 2, cpS.y, cpS.z - 2);
+			glVertex3f(cpS.x - 2, cpS.y, cpS.z + 2);
+			glEnd();
+
+			cpS = cpN;
+		}
+	}
+
+
 	// call your own track drawing code
 	//####################################################################
 
@@ -373,6 +560,95 @@ void TrainView::drawStuff(bool doingShadows)
 	// draw the train
 	//####################################################################
 	// TODO: 
+
+	if(!tw->trainCam->value())
+	{
+		//front
+		glBegin(GL_QUADS);
+		if (!doingShadows)
+			glColor3ub(0, 0, 255);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glEnd();
+
+		//back
+		glBegin(GL_QUADS);
+		if (!doingShadows)
+			glColor3ub(255, 255, 255);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glEnd();
+
+		//buttom
+		glBegin(GL_QUADS);
+		if (!doingShadows)
+			glColor3ub(255, 255, 255);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glEnd();
+
+		//top
+		glBegin(GL_QUADS);
+		if (!doingShadows)
+			glColor3ub(255, 255, 255);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glEnd();
+
+		//left
+		glBegin(GL_QUADS);
+		if (!doingShadows)
+			glColor3ub(0, 255, 0);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glEnd();
+
+		//right
+		glBegin(GL_QUADS);
+		if (!doingShadows)
+			glColor3ub(255, 0, 0);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glEnd();
+
+	}
+
 	//	call your own train drawing code
 	//####################################################################
 #ifdef EXAMPLE_SOLUTION
