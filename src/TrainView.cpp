@@ -289,6 +289,7 @@ void TrainView::draw()
 
 	// this time drawing is for shadows (except for top view)
 	if (!tw->topCam->value()) {
+
 		setupShadows();
 		drawStuff(true);
 		unsetupShadows();
@@ -380,7 +381,7 @@ void TrainView::GetPos(float const t, Pnt3f& pos, Pnt3f& orient)
 
 		pos = (1 - interval) * cp1 + interval * cp2;
 		orient = (1 - interval) * cp1o + interval * cp2o;
-		orient.normalize();
+		orient.normalize(); 
 	}
 	else if (tw->splineBrowser->selected(2) == true)
 	{
@@ -525,10 +526,11 @@ void TrainView::drawStuff(bool doingShadows)
 			cross.normalize();
 			cross = cross * 2.5f;
 
+			Pnt3f cpDir = cpN - cpS;
+
 			glLineWidth(3);
 			if (!doingShadows)
 				glColor3ub(32, 32, 64);
-
 			glLineWidth(3);
 			glBegin(GL_LINES);
 			glVertex3f(cpS.x + cross.x, cpS.y + cross.y, cpS.z + cross.z);
@@ -537,13 +539,62 @@ void TrainView::drawStuff(bool doingShadows)
 			glVertex3f(cpN.x - cross.x, cpN.y - cross.y, cpN.z - cross.z);
 			glEnd();
 
+			float barWidth = 2;
+			float barHeight = 0.5f;
+			float barLength = 6;
+
+			glPushMatrix();
+			glTranslatef(cpN.x, cpN.y, cpN.z);
+			float theta1 = -radiansToDegrees(atan2(cpNo.z, cpNo.x));
+			glRotatef(theta1, 0, 1, 0);
+			float theta2 = -radiansToDegrees(acos(cpNo.y));
+			glRotatef(theta2, 0, 0, 1);
+
 			glBegin(GL_QUADS);
-			glColor3f(0, 0, 0);
-			glVertex3f(cpS.x + 2, cpS.y, cpS.z + 2);
-			glVertex3f(cpS.x + 2, cpS.y, cpS.z - 2);
-			glVertex3f(cpS.x - 2, cpS.y, cpS.z - 2);
-			glVertex3f(cpS.x - 2, cpS.y, cpS.z + 2);
+			if (!doingShadows)
+				glColor3ub(255, 255, 255);
+			glNormal3f(0, -1, 0);
+			glVertex3f(-barLength / 2, -barHeight / 2, -barWidth / 2);
+			glVertex3f(-barLength / 2, -barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, -barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, -barHeight / 2, -barWidth / 2);
+
+
+			glNormal3f(-1, 0, 0);
+			glVertex3f(-barLength / 2, barHeight / 2, -barWidth / 2);
+			glVertex3f(-barLength / 2, barHeight / 2, barWidth / 2);
+			glVertex3f(-barLength / 2, -barHeight / 2, barWidth / 2);
+			glVertex3f(-barLength / 2, -barHeight / 2, -barWidth / 2);
+
+			glNormal3f(1, 0, 0);
+			glVertex3f(barLength / 2, barHeight / 2, -barWidth / 2);
+			glVertex3f(barLength / 2, barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, -barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, -barHeight / 2, -barWidth / 2);
+
+			glNormal3f(0, 0, -1);
+			glVertex3f(-barLength / 2, -barHeight / 2, -barWidth / 2);
+			glVertex3f(-barLength / 2, barHeight / 2, -barWidth / 2);
+			glVertex3f(barLength / 2, barHeight / 2, -barWidth / 2);
+			glVertex3f(barLength / 2, -barHeight / 2, -barWidth / 2);
+
+
+			glNormal3f(0, 0, 1);
+			glVertex3f(-barLength / 2, -barHeight / 2, barWidth / 2);
+			glVertex3f(-barLength / 2, barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, -barHeight / 2, barWidth / 2);
+
+			if (!doingShadows)
+				glColor3ub(255, 0, 0);
+			glNormal3f(0, 1, 0);
+			glVertex3f(-barLength / 2, barHeight / 2, -barWidth / 2);
+			glVertex3f(-barLength / 2, barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, barHeight / 2, barWidth / 2);
+			glVertex3f(barLength / 2, barHeight / 2, -barWidth / 2);
+
 			glEnd();
+			glPopMatrix();
 
 			cpS = cpN;
 		}
@@ -561,20 +612,48 @@ void TrainView::drawStuff(bool doingShadows)
 	//####################################################################
 	// TODO: 
 
-	if(!tw->trainCam->value())
+	if (!tw->trainCam->value())
 	{
+		glPushMatrix();
+		GLfloat MInvT[16] =
+		{
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			-MainTrain.WPos.x, -MainTrain.WPos.y, -MainTrain.WPos.z, 1
+		};
+
+		double viewDir = tan(MainTrain.ViewDir.z / MainTrain.ViewDir.x);
+		GLfloat MInvR[16] =
+		{
+			cos(viewDir), 0 , -sin(viewDir), 0,
+			0, 1, 0, 0,
+			sin(viewDir), 0, cos(viewDir), 0,
+			0, 0, 0, 1
+		};
+		glMultMatrixf(MInvT);
+		glMultMatrixf(MInvR);
+		//glPopMatrix();
+
+		//glPushMatrix();
+		glTranslatef(MainTrain.WPos.x, MainTrain.WPos.y, MainTrain.WPos.z);
+		float theta1 = -radiansToDegrees(atan2(MainTrain.WOrient.z, MainTrain.WOrient.x));
+		glRotatef(theta1, 0, 1, 0);
+		float theta2 = -radiansToDegrees(acos(MainTrain.WOrient.y));
+		glRotatef(theta2, 0, 0, 1);
+
 		//front
 		glBegin(GL_QUADS);
 		if (!doingShadows)
 			glColor3ub(0, 0, 255);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, -MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(MainTrain.width / 2, -MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(MainTrain.width / 2, MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, MainTrain.height / 2, MainTrain.length / 2);
 		glEnd();
 
 		//back
@@ -582,13 +661,13 @@ void TrainView::drawStuff(bool doingShadows)
 		if (!doingShadows)
 			glColor3ub(255, 255, 255);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, -MainTrain.height / 2, -MainTrain.length / 2);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(MainTrain.width / 2, -MainTrain.height / 2, -MainTrain.length / 2);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(MainTrain.width / 2, MainTrain.height / 2, -MainTrain.length / 2);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, MainTrain.height / 2, -MainTrain.length / 2);
 		glEnd();
 
 		//buttom
@@ -596,57 +675,58 @@ void TrainView::drawStuff(bool doingShadows)
 		if (!doingShadows)
 			glColor3ub(255, 255, 255);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, -MainTrain.height / 2, +MainTrain.length / 2);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(MainTrain.width / 2, -MainTrain.height / 2, +MainTrain.length / 2);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(MainTrain.width / 2, -MainTrain.height / 2, -MainTrain.length / 2);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, -MainTrain.height / 2, -MainTrain.length / 2);
 		glEnd();
 
 		//top
 		glBegin(GL_QUADS);
 		if (!doingShadows)
-			glColor3ub(255, 255, 255);
+			glColor3ub(0, 255, 255);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(MainTrain.width / 2, MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(MainTrain.width / 2, MainTrain.height / 2, -MainTrain.length / 2);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, MainTrain.height / 2, -MainTrain.length / 2);
 		glEnd();
 
 		//left
 		glBegin(GL_QUADS);
 		if (!doingShadows)
-			glColor3ub(0, 255, 0);
+			glColor3ub(255, 255, 255);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(MainTrain.width / 2, MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(MainTrain.width / 2, -MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(MainTrain.width / 2, -MainTrain.height / 2, -MainTrain.length / 2);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x + MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(MainTrain.width / 2, MainTrain.height / 2, -MainTrain.length / 2);
 		glEnd();
 
 		//right
 		glBegin(GL_QUADS);
 		if (!doingShadows)
-			glColor3ub(255, 0, 0);
+			glColor3ub(255, 255, 255);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z + MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, -MainTrain.height / 2, MainTrain.length / 2);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y - MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, -MainTrain.height / 2, -MainTrain.length / 2);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(MainTrain.WPos.x - MainTrain.width, MainTrain.WPos.y + MainTrain.height, MainTrain.WPos.z - MainTrain.length);
+		glVertex3f(-MainTrain.width / 2, MainTrain.height / 2, -MainTrain.length / 2);
 		glEnd();
 
+		glPopMatrix();
 	}
 
 	//	call your own train drawing code
