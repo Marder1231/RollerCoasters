@@ -73,61 +73,61 @@ void ControlPoint::
 draw()
 //============================================================================
 {
-	float size=2.0;
+	float size = 2.0;
 
 	glPushMatrix();
-	glTranslatef(pos.x,pos.y,pos.z);
-	float theta1 = -radiansToDegrees(atan2(orient.z,orient.x));
-	glRotatef(theta1,0,1,0);
+	glTranslatef(pos.x, pos.y, pos.z);
+	float theta1 = -radiansToDegrees(atan2(orient.z, orient.x));
+	glRotatef(theta1, 0, 1, 0);
 	float theta2 = -radiansToDegrees(acos(orient.y));
-	glRotatef(theta2,0,0,1);
+	glRotatef(theta2, 0, 0, 1);
 
-		glBegin(GL_QUADS);
-			glNormal3f( 0,0,1);
-			glVertex3f( size, size, size);
-			glVertex3f(-size, size, size);
-			glVertex3f(-size,-size, size);
-			glVertex3f( size,-size, size);
+	glBegin(GL_QUADS);
+	glNormal3f(0, 0, 1);
+	glVertex3f(size, size, size);
+	glVertex3f(-size, size, size);
+	glVertex3f(-size, -size, size);
+	glVertex3f(size, -size, size);
 
-			glNormal3f( 0, 0, -1);
-			glVertex3f( size, size, -size);
-			glVertex3f( size,-size, -size);
-			glVertex3f(-size,-size, -size);
-			glVertex3f(-size, size, -size);
+	glNormal3f(0, 0, -1);
+	glVertex3f(size, size, -size);
+	glVertex3f(size, -size, -size);
+	glVertex3f(-size, -size, -size);
+	glVertex3f(-size, size, -size);
 
-			// no top - it will be the point
+	// no top - it will be the point
 
-			glNormal3f( 0,-1,0);
-			glVertex3f( size,-size, size);
-			glVertex3f(-size,-size, size);
-			glVertex3f(-size,-size,-size);
-			glVertex3f( size,-size,-size);
+	glNormal3f(0, -1, 0);
+	glVertex3f(size, -size, size);
+	glVertex3f(-size, -size, size);
+	glVertex3f(-size, -size, -size);
+	glVertex3f(size, -size, -size);
 
-			glNormal3f( 1,0,0);
-			glVertex3f( size, size, size);
-			glVertex3f( size,-size, size);
-			glVertex3f( size,-size,-size);
-			glVertex3f( size, size,-size);
+	glNormal3f(1, 0, 0);
+	glVertex3f(size, size, size);
+	glVertex3f(size, -size, size);
+	glVertex3f(size, -size, -size);
+	glVertex3f(size, size, -size);
 
-			glNormal3f(-1,0,0);
-			glVertex3f(-size, size, size);
-			glVertex3f(-size, size,-size);
-			glVertex3f(-size,-size,-size);
-			glVertex3f(-size,-size, size);
-		glEnd();
-		glBegin(GL_TRIANGLE_FAN);
-			glNormal3f(0,1.0f,0);
-			glVertex3f(0,3.0f*size,0);
-			glNormal3f( 1.0f, 0.0f , 1.0f);
-			glVertex3f( size, size , size);
-			glNormal3f(-1.0f, 0.0f , 1.0f);
-			glVertex3f(-size, size , size);
-			glNormal3f(-1.0f, 0.0f ,-1.0f);
-			glVertex3f(-size, size ,-size);
-			glNormal3f( 1.0f, 0.0f ,-1.0f);
-			glVertex3f( size, size ,-size);
-			glNormal3f( 1.0f, 0.0f , 1.0f);
-			glVertex3f( size, size , size);
-		glEnd();
+	glNormal3f(-1, 0, 0);
+	glVertex3f(-size, size, size);
+	glVertex3f(-size, size, -size);
+	glVertex3f(-size, -size, -size);
+	glVertex3f(-size, -size, size);
+	glEnd();
+	glBegin(GL_TRIANGLE_FAN);
+	glNormal3f(0, 1.0f, 0);
+	glVertex3f(0, 3.0f * size, 0);
+	glNormal3f(1.0f, 0.0f, 1.0f);
+	glVertex3f(size, size, size);
+	glNormal3f(-1.0f, 0.0f, 1.0f);
+	glVertex3f(-size, size, size);
+	glNormal3f(-1.0f, 0.0f, -1.0f);
+	glVertex3f(-size, size, -size);
+	glNormal3f(1.0f, 0.0f, -1.0f);
+	glVertex3f(size, size, -size);
+	glNormal3f(1.0f, 0.0f, 1.0f);
+	glVertex3f(size, size, size);
+	glEnd();
 	glPopMatrix();
 }

@@ -55,11 +55,11 @@ class CTrack;
 class Train
 {
 public:
-	Train()
+	void Init()
 	{
-		height = 5;
-		width = 3;
-		length = 5;
+		height = 8;
+		width = 10;
+		length = 12;
 
 		WPos.x = 0;
 		WPos.y = 0;
@@ -74,9 +74,9 @@ public:
 		ViewDir.z = 0;
 	}
 
-	float height = 5;
-	float width = 3;
-	float length = 5;
+	float height;
+	float width;
+	float length;
 
 	Pnt3f WPos;
 	Pnt3f WOrient;
@@ -111,6 +111,7 @@ class TrainView : public Fl_Gl_Window
 		void GetPos(float const t, Pnt3f& pos, Pnt3f& orient);
 
 		Train MainTrain;
+		void SetTrainPos();
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
@@ -118,5 +119,5 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
-		int DIVIDE_LINE = 10;
+		int DIVIDE_LINE = 40;
 };

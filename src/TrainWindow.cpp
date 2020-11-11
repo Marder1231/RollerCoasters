@@ -35,7 +35,7 @@
 #include "TrainView.H"
 #include "CallBacks.H"
 
-
+double TrainWindow::Step = 0.000001;
 
 //************************************************************************
 //
@@ -183,6 +183,7 @@ damageMe()
 {
 	if (trainView->selectedCube >= ((int)m_Track.points.size()))
 		trainView->selectedCube = 0;
+	trainView->SetTrainPos();
 	trainView->damage(1);
 }
 
@@ -197,7 +198,9 @@ advanceTrain(float dir)
 {
 	//#####################################################################
 	// TODO: make this work for your train
-	trainView->m_pTrack->trainU += speed->value() * (dir / m_Track.points.size() / trainView->DIVIDE_LINE / 10);
+
+	Step = (dir / m_Track.points.size() / trainView->DIVIDE_LINE);
+	trainView->m_pTrack->trainU += Step * speed->value();
 	if (trainView->m_pTrack->trainU >= 1.0f)
 	{
 		trainView->m_pTrack->TurnCounter++;
