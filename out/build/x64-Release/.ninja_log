@@ -1,0 +1,13 @@
+# ninja log v5
+112	832	626781427	CMakeFiles/Utilities.dir/src/Utilities/Pnt3f.cpp.obj	2221a914eb0d4a98
+25	1974	626781428	CMakeFiles/RollerCoasters.dir/src/Track.cpp.obj	eaa673fe5fe68b08
+96	2734	626781429	CMakeFiles/RollerCoasters.dir/include/glad4.6/src/glad.c.obj	734050962bf8bfc7
+2	4243	626781430	CMakeFiles/RollerCoasters.dir/src/ControlPoint.cpp.obj	579f32677caea442
+164	4770	626781431	CMakeFiles/Utilities.dir/src/Utilities/ArcBallCam.cpp.obj	3e09419fe026a0a
+88	5261	626781431	CMakeFiles/RollerCoasters.dir/src/TrainWindow.cpp.obj	4e14c2b62d988afd
+105	5299	626781431	CMakeFiles/Utilities.dir/src/Utilities/3DUtils.cpp.obj	4e1eb8b0f403a4eb
+33	5538	626781431	CMakeFiles/RollerCoasters.dir/src/main.cpp.obj	d26a5605bd79870e
+5307	5755	626781431	Utilities.lib	53c7a44a49feb3f3
+17	6180	626781432	CMakeFiles/RollerCoasters.dir/src/CallBacks.cpp.obj	ea4db9bb88858de5
+79	7286	626781433	CMakeFiles/RollerCoasters.dir/src/TrainView.cpp.obj	7f5f1d5d91722ec
+7296	8536	626781434	RollerCoasters.exe	9391919716030701

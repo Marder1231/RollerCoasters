@@ -31,10 +31,7 @@
 #include <windows.h>
 #include <iostream>
 
-//#include "GL/gl.h"
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include "GL/glu.h"
+
 
 #include "TrainView.H"
 #include "TrainWindow.H"
@@ -45,6 +42,15 @@
 #	include "TrainExample/TrainExample.H"
 #endif
 
+/*
+	addition :
+		$$$ arc,
+		refactor draw train
+		lamp with light, 
+		a raycast at viewspace center
+		smoke,
+		people can hand up,
+*/
 
 //************************************************************************
 //
@@ -58,6 +64,9 @@ TrainView(int x, int y, int w, int h, const char* l)
 	mode( FL_RGB|FL_ALPHA|FL_DOUBLE | FL_STENCIL );
 
 	MainTrain.Init();
+
+	Pnt3f manPos(0, 5, 0);
+	fuckingMan.Init(manPos);
 
 	resetArcball();
 }
@@ -263,27 +272,27 @@ void TrainView::draw()
 	float DirnoAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float blueAmbientDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float position[] = { 1.0f, 0.0f, 1.0f, 0.0f };
-	glLightfv(GL_LIGHT0, GL_AMBIENT, DirnoAmbient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, blueAmbientDiffuse);
-	glLightfv(GL_LIGHT0, GL_POSITION, position);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, DirnoAmbient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, blueAmbientDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, position);
 
 
 	float noAmbient[] = { 0, 0, 0.2f, 1 };
 	float diffuse[] = { 1, 0, 1, 1 };
-	float spotPosition[] = { 0, 50, 0, 1 };
+	float spotPosition[] = { 0, 10, 0, 1 };
 
 	glLightfv(GL_LIGHT2, GL_AMBIENT, noAmbient);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
 	glLightfv(GL_LIGHT2, GL_POSITION, spotPosition);
 
 	float direction[] = { 0, -1, 0 };
-	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, direction);
-	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 30);
-	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 15.0f);
+	glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, direction);
+	glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 10);
+	glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 1.0f);
 
-	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0f);
-	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.0f);
-	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0f);
+	glLightf(GL_LIGHT3, GL_CONSTANT_ATTENUATION, 1.0f);
+	glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION, 0.0f);
+	glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0f);
 
 
 	//*********************************************************************
@@ -664,85 +673,9 @@ void TrainView::drawStuff(bool doingShadows)
 
 	if (!tw->trainCam->value())
 	{
-		Pnt3f u = MainTrain.ViewDir; u.normalize();
-		Pnt3f w = u * MainTrain.WOrient; w.normalize();
-		Pnt3f v = w * u; v.normalize();
-		float rotation[16] =
-		{
-			u.x, u.y, u.z, 0.0f,
-			v.x, v.y, v.z, 0.0f,
-			w.x, w.y, w.z, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		};
-
-		glPushMatrix();
-		glTranslatef(MainTrain.WPos.x, MainTrain.WPos.y, MainTrain.WPos.z);
-		glMultMatrixf(rotation);
-		glRotatef(90, 0, 1, 0);
-		glBegin(GL_QUADS);
-
-		float height = MainTrain.height;
-		float length = MainTrain.length;
-		float width = MainTrain.width;
-
-		glBegin(GL_QUADS);
-
-		if (!doingShadows)
-			glColor3ub(0, 255, 255);
-		glNormal3f(1, 0, 0);
-		glVertex3f(width / 2, height / 2, -length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-		glVertex3f(width / 2, 0, -length / 2);
-
-		if (!doingShadows)
-			glColor3ub(255, 0, 255);
-		glNormal3f(0, 0, 1);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-
-		if (!doingShadows)
-			glColor3ub(255, 255, 255);
-		glNormal3f(0, -1, 0);
-		glVertex3f(-width / 2, 0, -length / 2);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-		glVertex3f(width / 2, 0, -length / 2);
-
-		glNormal3f(-1, 0, 0);
-		glVertex3f(-width / 2, height / 2, -length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(-width / 2, 0, -length / 2);
-
-		glNormal3f(0, 0, -1);
-		glVertex3f(-width / 2, 0, -length / 2);
-		glVertex3f(-width / 2, height / 2, -length / 2);
-		glVertex3f(width / 2, height / 2, -length / 2);
-		glVertex3f(width / 2, 0, -length / 2);
-
-		glNormal3f(0, 0, 1);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-
-		if (!doingShadows)
-			glColor3ub(255, 255, 0);
-		glNormal3f(0, 1, 0);
-		glVertex3f(-width / 2, height / 2, -length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, -length / 2);
-
-		glEnd();
-		glPopMatrix();
-
-		glEnd();
-		glPopMatrix();
+		MainTrain.DrawMainBody(doingShadows);
 	}
+	fuckingMan.Draw(doingShadows);
 
 	//	call your own train drawing code
 	//####################################################################

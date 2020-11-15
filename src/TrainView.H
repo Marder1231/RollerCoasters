@@ -46,11 +46,17 @@ class CTrack;
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
 #include <Fl/Fl_Gl_Window.h>
+//#include "GL/gl.h"
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include "GL/glu.h"
 #pragma warning(pop)
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
 #include "Utilities/Pnt3f.H"
+
+#include "TestGuy.h"
 
 class Train
 {
@@ -81,6 +87,79 @@ public:
 	Pnt3f WPos;
 	Pnt3f WOrient;
 	Pnt3f ViewDir;
+
+	void DrawMainBody(bool doingShadows)
+	{
+		Pnt3f u = this->ViewDir; u.normalize();
+		Pnt3f w = u * this->WOrient; w.normalize();
+		Pnt3f v = w * u; v.normalize();
+		float rotation[16] =
+		{
+			u.x, u.y, u.z, 0.0f,
+			v.x, v.y, v.z, 0.0f,
+			w.x, w.y, w.z, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		};
+		
+		glPushMatrix();
+		glTranslatef(this->WPos.x, this->WPos.y, this->WPos.z);
+		glMultMatrixf(rotation);
+		glRotatef(90, 0, 1, 0);
+		glBegin(GL_QUADS);
+
+		if (!doingShadows)
+			glColor3ub(0, 255, 255);
+		glNormal3f(1, 0, 0);
+		glVertex3f(width / 2, height / 2, -length / 2);
+		glVertex3f(width / 2, height / 2, length / 2);
+		glVertex3f(width / 2, 0, length / 2);
+		glVertex3f(width / 2, 0, -length / 2);
+
+		if (!doingShadows)
+			glColor3ub(255, 0, 255);
+		glNormal3f(0, 0, 1);
+		glVertex3f(-width / 2, 0, length / 2);
+		glVertex3f(-width / 2, height / 2, length / 2);
+		glVertex3f(width / 2, height / 2, length / 2);
+		glVertex3f(width / 2, 0, length / 2);
+
+		if (!doingShadows)
+			glColor3ub(255, 255, 255);
+		glNormal3f(0, -1, 0);
+		glVertex3f(-width / 2, 0, -length / 2);
+		glVertex3f(-width / 2, 0, length / 2);
+		glVertex3f(width / 2, 0, length / 2);
+		glVertex3f(width / 2, 0, -length / 2);
+
+		glNormal3f(-1, 0, 0);
+		glVertex3f(-width / 2, height / 2, -length / 2);
+		glVertex3f(-width / 2, height / 2, length / 2);
+		glVertex3f(-width / 2, 0, length / 2);
+		glVertex3f(-width / 2, 0, -length / 2);
+
+		glNormal3f(0, 0, -1);
+		glVertex3f(-width / 2, 0, -length / 2);
+		glVertex3f(-width / 2, height / 2, -length / 2);
+		glVertex3f(width / 2, height / 2, -length / 2);
+		glVertex3f(width / 2, 0, -length / 2);
+
+		glNormal3f(0, 0, 1);
+		glVertex3f(-width / 2, 0, length / 2);
+		glVertex3f(-width / 2, height / 2, length / 2);
+		glVertex3f(width / 2, height / 2, length / 2);
+		glVertex3f(width / 2, 0, length / 2);
+
+		if (!doingShadows)
+			glColor3ub(255, 255, 0);
+		glNormal3f(0, 1, 0);
+		glVertex3f(-width / 2, height / 2, -length / 2);
+		glVertex3f(-width / 2, height / 2, length / 2);
+		glVertex3f(width / 2, height / 2, length / 2);
+		glVertex3f(width / 2, height / 2, -length / 2);
+
+		glEnd();
+		glPopMatrix();
+	}
 };
 
 class TrainView : public Fl_Gl_Window
@@ -110,6 +189,7 @@ class TrainView : public Fl_Gl_Window
 
 		void GetPos(float const t, Pnt3f& pos, Pnt3f& orient);
 
+		TestGuy fuckingMan;
 		Train MainTrain;
 		void SetTrainPos();
 	public:

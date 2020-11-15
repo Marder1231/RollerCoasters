@@ -106,6 +106,15 @@ build CMakeFiles\RollerCoasters.dir\include\glad4.6\src\glad.c.obj: C_COMPILER__
   TARGET_COMPILE_PDB = CMakeFiles\RollerCoasters.dir\
   TARGET_PDB = RollerCoasters.pdb
 
+build CMakeFiles\RollerCoasters.dir\src\TestGuy.cpp.obj: CXX_COMPILER__RollerCoasters_Debug ..\..\..\src\TestGuy.cpp || cmake_object_order_depends_target_RollerCoasters_Debug
+  DEFINES = -D_XKEYCHECK_H
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
+  INCLUDES = -I..\..\..\include -I..\..\..\include\glad4.6\include -I..\..\..\include\glm-0.9.8.5\glm
+  OBJECT_DIR = CMakeFiles\RollerCoasters.dir
+  OBJECT_FILE_DIR = CMakeFiles\RollerCoasters.dir\src
+  TARGET_COMPILE_PDB = CMakeFiles\RollerCoasters.dir\
+  TARGET_PDB = RollerCoasters.pdb
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target RollerCoasters
@@ -114,7 +123,7 @@ build CMakeFiles\RollerCoasters.dir\include\glad4.6\src\glad.c.obj: C_COMPILER__
 #############################################
 # Link the executable RollerCoasters.exe
 
-build RollerCoasters.exe: CXX_EXECUTABLE_LINKER__RollerCoasters_Debug CMakeFiles\RollerCoasters.dir\src\CallBacks.cpp.obj CMakeFiles\RollerCoasters.dir\src\ControlPoint.cpp.obj CMakeFiles\RollerCoasters.dir\src\main.cpp.obj CMakeFiles\RollerCoasters.dir\src\Track.cpp.obj CMakeFiles\RollerCoasters.dir\src\TrainView.cpp.obj CMakeFiles\RollerCoasters.dir\src\TrainWindow.cpp.obj CMakeFiles\RollerCoasters.dir\include\glad4.6\src\glad.c.obj | ..\..\..\lib\Debug\fltk_formsd.lib ..\..\..\lib\Debug\fltk_gld.lib ..\..\..\lib\Debug\fltk_imagesd.lib ..\..\..\lib\Debug\fltk_jpegd.lib ..\..\..\lib\Debug\fltk_pngd.lib ..\..\..\lib\Debug\fltk_zd.lib ..\..\..\lib\Debug\fltkd.lib ..\..\..\lib\OpenGL32.lib ..\..\..\lib\glu32.lib Utilities.lib || Utilities.lib
+build RollerCoasters.exe: CXX_EXECUTABLE_LINKER__RollerCoasters_Debug CMakeFiles\RollerCoasters.dir\src\CallBacks.cpp.obj CMakeFiles\RollerCoasters.dir\src\ControlPoint.cpp.obj CMakeFiles\RollerCoasters.dir\src\main.cpp.obj CMakeFiles\RollerCoasters.dir\src\Track.cpp.obj CMakeFiles\RollerCoasters.dir\src\TrainView.cpp.obj CMakeFiles\RollerCoasters.dir\src\TrainWindow.cpp.obj CMakeFiles\RollerCoasters.dir\include\glad4.6\src\glad.c.obj CMakeFiles\RollerCoasters.dir\src\TestGuy.cpp.obj | ..\..\..\lib\Debug\fltk_formsd.lib ..\..\..\lib\Debug\fltk_gld.lib ..\..\..\lib\Debug\fltk_imagesd.lib ..\..\..\lib\Debug\fltk_jpegd.lib ..\..\..\lib\Debug\fltk_pngd.lib ..\..\..\lib\Debug\fltk_zd.lib ..\..\..\lib\Debug\fltkd.lib ..\..\..\lib\OpenGL32.lib ..\..\..\lib\glu32.lib Utilities.lib || Utilities.lib
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = ..\..\..\lib\Debug\fltk_formsd.lib  ..\..\..\lib\Debug\fltk_gld.lib  ..\..\..\lib\Debug\fltk_imagesd.lib  ..\..\..\lib\Debug\fltk_jpegd.lib  ..\..\..\lib\Debug\fltk_pngd.lib  ..\..\..\lib\Debug\fltk_zd.lib  ..\..\..\lib\Debug\fltkd.lib  ..\..\..\lib\OpenGL32.lib  ..\..\..\lib\glu32.lib  Utilities.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
@@ -162,6 +171,15 @@ build CMakeFiles\Utilities.dir\src\Utilities\Pnt3f.cpp.obj: CXX_COMPILER__Utilit
   TARGET_COMPILE_PDB = CMakeFiles\Utilities.dir\Utilities.pdb
   TARGET_PDB = Utilities.pdb
 
+build CMakeFiles\Utilities.dir\src\TestGuy.cpp.obj: CXX_COMPILER__Utilities_Debug ..\..\..\src\TestGuy.cpp || cmake_object_order_depends_target_Utilities_Debug
+  DEFINES = -D_XKEYCHECK_H
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
+  INCLUDES = -I..\..\..\include -I..\..\..\include\glad4.6\include -I..\..\..\include\glm-0.9.8.5\glm
+  OBJECT_DIR = CMakeFiles\Utilities.dir
+  OBJECT_FILE_DIR = CMakeFiles\Utilities.dir\src
+  TARGET_COMPILE_PDB = CMakeFiles\Utilities.dir\Utilities.pdb
+  TARGET_PDB = Utilities.pdb
+
 
 # =============================================================================
 # Link build statements for STATIC_LIBRARY target Utilities
@@ -170,7 +188,7 @@ build CMakeFiles\Utilities.dir\src\Utilities\Pnt3f.cpp.obj: CXX_COMPILER__Utilit
 #############################################
 # Link the static library Utilities.lib
 
-build Utilities.lib: CXX_STATIC_LIBRARY_LINKER__Utilities_Debug CMakeFiles\Utilities.dir\src\Utilities\3DUtils.cpp.obj CMakeFiles\Utilities.dir\src\Utilities\ArcBallCam.cpp.obj CMakeFiles\Utilities.dir\src\Utilities\Pnt3f.cpp.obj
+build Utilities.lib: CXX_STATIC_LIBRARY_LINKER__Utilities_Debug CMakeFiles\Utilities.dir\src\Utilities\3DUtils.cpp.obj CMakeFiles\Utilities.dir\src\Utilities\ArcBallCam.cpp.obj CMakeFiles\Utilities.dir\src\Utilities\Pnt3f.cpp.obj CMakeFiles\Utilities.dir\src\TestGuy.cpp.obj
   LANGUAGE_COMPILE_FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64
   OBJECT_DIR = CMakeFiles\Utilities.dir

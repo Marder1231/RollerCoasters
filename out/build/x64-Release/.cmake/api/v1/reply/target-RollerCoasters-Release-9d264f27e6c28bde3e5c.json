@@ -83,7 +83,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1  "
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG  "
 				}
 			],
 			"defines" : 
@@ -123,7 +123,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1  "
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /MD /O2 /Ob2 /DNDEBUG  "
 				}
 			],
 			"defines" : 
@@ -168,46 +168,46 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1",
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG",
 				"role" : "flags"
 			},
 			{
-				"fragment" : "/machine:x64 /debug /INCREMENTAL /subsystem:console",
+				"fragment" : "/machine:x64 /INCREMENTAL:NO /subsystem:console",
 				"role" : "flags"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\..\\lib\\Debug\\fltk_formsd.lib",
+				"fragment" : "..\\..\\..\\lib\\Release\\fltk_forms.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\..\\lib\\Debug\\fltk_gld.lib",
+				"fragment" : "..\\..\\..\\lib\\Release\\fltk_gl.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\..\\lib\\Debug\\fltk_imagesd.lib",
+				"fragment" : "..\\..\\..\\lib\\Release\\fltk_images.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\..\\lib\\Debug\\fltk_jpegd.lib",
+				"fragment" : "..\\..\\..\\lib\\Release\\fltk_jpeg.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\..\\lib\\Debug\\fltk_pngd.lib",
+				"fragment" : "..\\..\\..\\lib\\Release\\fltk_png.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\..\\lib\\Debug\\fltk_zd.lib",
+				"fragment" : "..\\..\\..\\lib\\Release\\fltk_z.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\..\\lib\\Debug\\fltkd.lib",
+				"fragment" : "..\\..\\..\\lib\\Release\\fltk.lib",
 				"role" : "libraries"
 			},
 			{
