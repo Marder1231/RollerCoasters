@@ -50,7 +50,9 @@ class CTrack;
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include "GL/glu.h"
+#include "TestGuy.h"
 #pragma warning(pop)
+
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
@@ -58,107 +60,28 @@ class CTrack;
 
 #include "TestGuy.h"
 
-class Train
+class Train : public GameObject
 {
 public:
-	void Init()
+	Train() : GameObject() { }
+	Train(Pnt3f _pos, Pnt3f _size) : GameObject(_pos, _size) { }
+
+	float NowDistance = 0;
+
+	void Init(Pnt3f _pos)
 	{
-		height = 8;
-		width = 10;
-		length = 12;
+		Pnt3f _size(1, 1, 1);
 
-		WPos.x = 0;
-		WPos.y = 0;
-		WPos.z = 0;
+		Pnt3f trainHeadSize(10, 8, 12);
+		AddComponent(trainHeadSize, Pnt3f(0, 0, 0), 0);
+		int frontColor[3] = { 0, 255, 255 };
+		int topColor[3] = { 255, 255, 0 };
+		Components[0]->printer.SetSideColor(Components[0]->printer.Top, topColor);
+		Components[0]->printer.SetSideColor(Components[0]->printer.Front, frontColor);
 
-		WOrient.x = 0;
-		WOrient.y = 0;
-		WOrient.z = 0;
-		
-		ViewDir.x = 0;
-		ViewDir.y = 0;
-		ViewDir.z = 0;
-	}
-
-	float height;
-	float width;
-	float length;
-
-	Pnt3f WPos;
-	Pnt3f WOrient;
-	Pnt3f ViewDir;
-
-	void DrawMainBody(bool doingShadows)
-	{
-		Pnt3f u = this->ViewDir; u.normalize();
-		Pnt3f w = u * this->WOrient; w.normalize();
-		Pnt3f v = w * u; v.normalize();
-		float rotation[16] =
-		{
-			u.x, u.y, u.z, 0.0f,
-			v.x, v.y, v.z, 0.0f,
-			w.x, w.y, w.z, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		};
-		
-		glPushMatrix();
-		glTranslatef(this->WPos.x, this->WPos.y, this->WPos.z);
-		glMultMatrixf(rotation);
-		glRotatef(90, 0, 1, 0);
-		glBegin(GL_QUADS);
-
-		if (!doingShadows)
-			glColor3ub(0, 255, 255);
-		glNormal3f(1, 0, 0);
-		glVertex3f(width / 2, height / 2, -length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-		glVertex3f(width / 2, 0, -length / 2);
-
-		if (!doingShadows)
-			glColor3ub(255, 0, 255);
-		glNormal3f(0, 0, 1);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-
-		if (!doingShadows)
-			glColor3ub(255, 255, 255);
-		glNormal3f(0, -1, 0);
-		glVertex3f(-width / 2, 0, -length / 2);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-		glVertex3f(width / 2, 0, -length / 2);
-
-		glNormal3f(-1, 0, 0);
-		glVertex3f(-width / 2, height / 2, -length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(-width / 2, 0, -length / 2);
-
-		glNormal3f(0, 0, -1);
-		glVertex3f(-width / 2, 0, -length / 2);
-		glVertex3f(-width / 2, height / 2, -length / 2);
-		glVertex3f(width / 2, height / 2, -length / 2);
-		glVertex3f(width / 2, 0, -length / 2);
-
-		glNormal3f(0, 0, 1);
-		glVertex3f(-width / 2, 0, length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, 0, length / 2);
-
-		if (!doingShadows)
-			glColor3ub(255, 255, 0);
-		glNormal3f(0, 1, 0);
-		glVertex3f(-width / 2, height / 2, -length / 2);
-		glVertex3f(-width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, length / 2);
-		glVertex3f(width / 2, height / 2, -length / 2);
-
-		glEnd();
-		glPopMatrix();
+		//Pnt3f trainChildSize(5, 5, 5);
+		//AddComponent(trainChildSize, Pnt3f(0, 0, 0), 1);
+		//Components[1]->printer.SetSideColor(printer.Front, topColor);
 	}
 };
 
@@ -167,6 +90,8 @@ class TrainView : public Fl_Gl_Window
 	public:
 		// note that we keep the "standard widget" constructor arguments
 		TrainView(int x, int y, int w, int h, const char* l = 0);
+
+		void Init();
 
 		// overrides of important window things
 		virtual int handle(int);
@@ -190,14 +115,17 @@ class TrainView : public Fl_Gl_Window
 		void GetPos(float const t, Pnt3f& pos, Pnt3f& orient);
 
 		TestGuy fuckingMan;
-		Train MainTrain;
+		Train train;
 		void SetTrainPos();
+
+		void ComputeDistance();
+		void ARCMoveTrain(float);
+
+		float TotalDistance = 0;
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
 
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
-
-		int DIVIDE_LINE = 40;
 };

@@ -113,13 +113,36 @@ namespace NPGameObject
 
 	class BasicObject
 	{
+		Pnt3f position;
+		Pnt3f localPosition;
+		Pnt3f orient;
+		Pnt3f viewDir;
 	public:
 		BasicObject* Parent = nullptr;
 
-		Pnt3f Position;
-		Pnt3f LocalPosition;
-		Pnt3f Orient;
-		Pnt3f ViewDir;
+		virtual void SetPosition(Pnt3f _pos)
+		{
+			position = _pos;
+		}
+		Pnt3f& GetPosition() { return position; }
+
+		void SetLocalPosition(Pnt3f _pos)
+		{
+			localPosition = _pos;
+		}
+		Pnt3f& GetLocalPosition() { return localPosition; }
+		
+		virtual void SetOrient(Pnt3f _pos)
+		{
+			orient = _pos;
+		}
+		Pnt3f& GetOrient() { return orient; }
+
+		virtual void SetViewDir(Pnt3f _pos)
+		{
+			viewDir = _pos;
+		}
+		Pnt3f& GetViewDir() { return viewDir; }
 
 		Pnt3f Size;
 		CubePrinter printer;
@@ -137,17 +160,17 @@ namespace NPGameObject
 
 		inline void Init(Pnt3f _pos, Pnt3f _size)
 		{
-			Position = _pos;
+			position = _pos;
 			Size = _size;
-			Orient = Pnt3f(0, 1, 0);
-			ViewDir = Pnt3f(1, 0, 0);
-			LocalPosition = Pnt3f(0, 0, 0);
+			orient = Pnt3f(0, 1, 0);
+			viewDir = Pnt3f(1, 0, 0);
+			localPosition = Pnt3f(0, 0, 0);
 		}
 
 		void CenterDraw(bool doingShadows)
 		{
-			Pnt3f u = ViewDir; u.normalize();
-			Pnt3f w = u * Orient; w.normalize();
+			Pnt3f u = viewDir; u.normalize();
+			Pnt3f w = u * orient; w.normalize();
 			Pnt3f v = w * u; v.normalize();
 			float rotation[16] =
 			{
@@ -158,7 +181,7 @@ namespace NPGameObject
 			};
 
 			glPushMatrix();
-			glTranslatef(Position.x, Position.y, Position.z);
+			glTranslatef(position.x, position.y, position.z);
 			glMultMatrixf(rotation);
 			glRotatef(90, 0, 1, 0);
 			glBegin(GL_QUADS);
@@ -210,9 +233,9 @@ namespace NPGameObject
 
 		virtual void Modify(Pnt3f modifyPos) override
 		{
-			Pnt3f parentPos = Position;
-			Position = Position + modifyPos;
-			LocalPosition = Position - parentPos;
+			Pnt3f parentPos = GetPosition();
+			SetPosition(GetPosition() + modifyPos);
+			SetLocalPosition(GetPosition() - parentPos);
 		}
 
 		virtual void SetParent(BasicObject* _parent) override
@@ -223,7 +246,7 @@ namespace NPGameObject
 		//void change head size or didn't use preset head size
 		void Init(Pnt3f _size, BasicObject* _parent, Pnt3f modifyPos)
 		{
-			NPGameObject::BasicObject::Init(_parent->Position, _size);
+			NPGameObject::BasicObject::Init(_parent->GetPosition(), _size);
 			SetParent(_parent);
 			Modify(modifyPos);
 		}
@@ -239,8 +262,49 @@ namespace NPGameObject
 
 		void AddComponent(Pnt3f _size, Pnt3f _modifyPos, int _index)
 		{
-			Component* newComponent = new Component(_size, this->Position, this, _modifyPos, _index);
+			Component* newComponent = new Component(_size, this->GetPosition(), this, _modifyPos, _index);
 			Components[_index] = newComponent;
+		}
+
+		virtual void SetOrient(Pnt3f _pos) override
+		{
+			_pos.normalize();
+			BasicObject::SetOrient(_pos);
+
+			for (auto& partial : Components)
+			{
+				partial.second->SetOrient(_pos);
+			}
+		}
+
+		virtual void SetPosition(Pnt3f _pos) override
+		{
+			BasicObject::SetPosition(_pos);
+
+			for (auto& partial : Components)
+			{
+				partial.second->SetPosition(_pos);
+				partial.second->Modify(partial.second->GetLocalPosition());
+			}
+		}
+
+		virtual void SetViewDir(Pnt3f _pos) override
+		{
+			_pos.normalize();
+			BasicObject::SetViewDir(_pos);
+
+			for (auto& partial : Components)
+			{
+				partial.second->SetViewDir(_pos);
+			}
+		}
+
+		void Draws(bool doingShadows)
+		{
+			for (auto& partial : Components)
+			{
+				partial.second->CenterDraw(doingShadows);
+			}
 		}
 
 		~GameObject()
@@ -292,14 +356,7 @@ public:
 		Pnt3f handSize(1, 5, 1);
 		Pnt3f rightHandModifyPos(Components[EmBodyPartial::Body]->Size.x / 2.0, Components[EmBodyPartial::Body]->Size.y / 2, 0);
 		AddComponent(handSize, rightHandModifyPos, EmBodyPartial::RightHand);
-		Components[EmBodyPartial::RightHand]->Orient.y = -1;
-	}
-
-	void Draw(bool doingShadows)
-	{
-		for (auto& partial : Components)
-		{
-			partial.second->CenterDraw(doingShadows);
-		}
+		Components[EmBodyPartial::RightHand]->SetOrient(Pnt3f(
+			Components[EmBodyPartial::RightHand]->GetOrient().x, -1, Components[EmBodyPartial::RightHand]->GetOrient().z));
 	}
 };

@@ -63,7 +63,6 @@ class TrainWindow : public Fl_Double_Window {
 
 		// simple helper function to set up a button
 		void togglify(Fl_Button*, int state=0);
-
 	public:
 		// keep track of the stuff in the world
 		CTrack				m_Track;

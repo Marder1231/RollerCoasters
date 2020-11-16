@@ -30,6 +30,7 @@
 
 // for using the real time clock
 #include <time.h>
+#include <iostream>
 
 #include "TrainWindow.H"
 #include "TrainView.H"
@@ -157,6 +158,10 @@ TrainWindow(const int x, const int y)
 
 	// set up callback on idle
 	Fl::add_idle((void (*)(void*))runButtonCB,this);
+
+
+	trainView->Init();
+	advanceTrain();
 }
 
 //************************************************************************
@@ -183,7 +188,9 @@ damageMe()
 {
 	if (trainView->selectedCube >= ((int)m_Track.points.size()))
 		trainView->selectedCube = 0;
+
 	trainView->SetTrainPos();
+	trainView->ComputeDistance();
 	trainView->damage(1);
 }
 
@@ -198,14 +205,21 @@ advanceTrain(float dir)
 {
 	//#####################################################################
 	// TODO: make this work for your train
-
-	Step = (dir / m_Track.points.size() / trainView->DIVIDE_LINE);
-	trainView->m_pTrack->trainU += Step * speed->value();
-	if (trainView->m_pTrack->trainU >= 1.0f)
+	if (arcLength->value())
 	{
-		trainView->m_pTrack->TurnCounter++;
-		trainView->m_pTrack->trainU -= 1.0f;
+		trainView->ARCMoveTrain(speed->value());
 	}
+	else
+	{
+		Step = 0.005f;
+		trainView->m_pTrack->trainU += Step * speed->value();
+		if (trainView->m_pTrack->trainU >= 1.0f)
+		{
+			trainView->m_pTrack->TurnCounter++;
+			trainView->m_pTrack->trainU -= 1.0f;
+		}
+	}
+
 	//#####################################################################
 #ifdef EXAMPLE_SOLUTION
 	// note - we give a little bit more example code here than normal,
@@ -214,8 +228,9 @@ advanceTrain(float dir)
 	if (arcLength->value()) {
 		float vel = ew.physics->value() ? physicsSpeed(this) : dir * (float)speed->value();
 		world.trainU += arclenVtoV(world.trainU, vel, this);
-	} else {
-		world.trainU +=  dir * ((float)speed->value() * .1f);
+	}
+	else {
+		world.trainU += dir * ((float)speed->value() * .1f);
 	}
 
 	float nct = static_cast<float>(world.points.size());

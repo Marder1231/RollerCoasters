@@ -63,12 +63,76 @@ TrainView(int x, int y, int w, int h, const char* l)
 {
 	mode( FL_RGB|FL_ALPHA|FL_DOUBLE | FL_STENCIL );
 
-	MainTrain.Init();
+	resetArcball();
+}
+
+void TrainView::Init()
+{
+	ComputeDistance();
+	
+	Pnt3f pos, orient;
+	GetPos(0, pos, orient);
+	train.Init(pos);
 
 	Pnt3f manPos(0, 5, 0);
 	fuckingMan.Init(manPos);
+}
 
-	resetArcball();
+void TrainView::ARCMoveTrain(float _speed)
+{
+	train.NowDistance += _speed;
+	if (train.NowDistance - TotalDistance > 0)
+		train.NowDistance -= TotalDistance;
+
+	//at where
+	float computeDistance = train.NowDistance;
+	int nowControlPointIndex = 0;
+	for (int i = 0; i < m_pTrack->points.size(); i++)
+	{
+		computeDistance -= m_pTrack->PointDistances[i];
+		nowControlPointIndex = i;
+		if (computeDistance <= 0)
+			break;
+	}
+
+	m_pTrack->TurnCounter = nowControlPointIndex;
+	m_pTrack->trainU = (computeDistance + m_pTrack->PointDistances[nowControlPointIndex])
+		/ m_pTrack->PointDistances[nowControlPointIndex];
+}
+void TrainView::ComputeDistance()
+{
+	const int clipcounter = 100;
+	TotalDistance = 0;
+	m_pTrack->PointDistances.clear();
+	//compute distance
+	Pnt3f cps;
+	Pnt3f cpso;
+	GetPos(0, cps, cpso);
+	for (int i = 0; i < m_pTrack->points.size(); i++)
+	{
+		float t = i;
+		float percent = 1.0f / clipcounter;
+
+		float distancetotal = 0;
+
+		for (int j = 0; j < clipcounter; j++)
+		{
+			t += percent;
+			float interval = t - int(t);
+
+			Pnt3f cpn;
+			Pnt3f cpno;
+			GetPos(t, cpn, cpno);
+
+			Pnt3f diff = cpn - cps;
+			float distance = abs(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
+			distance = sqrt(distance);
+			distancetotal += distance;
+			TotalDistance += distance;
+			cps = cpn;
+		}
+		m_pTrack->PointDistances.push_back(distancetotal);
+	}
 }
 
 //************************************************************************
@@ -103,6 +167,7 @@ int TrainView::handle(int event)
 		if (arcball.handle(event)) 
 			return 1;
 
+	ComputeDistance();
 	// remember what button was used
 	static int last_push;
 
@@ -277,22 +342,22 @@ void TrainView::draw()
 	glLightfv(GL_LIGHT1, GL_POSITION, position);
 
 
-	float noAmbient[] = { 0, 0, 0.2f, 1 };
-	float diffuse[] = { 1, 0, 1, 1 };
-	float spotPosition[] = { 0, 10, 0, 1 };
+	//float noAmbient[] = { 0, 0, 0.2f, 1 };
+	//float diffuse[] = { 1, 0, 1, 1 };
+	//float spotPosition[] = { 0, 10, 0, 1 };
 
-	glLightfv(GL_LIGHT2, GL_AMBIENT, noAmbient);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT2, GL_POSITION, spotPosition);
+	//glLightfv(GL_LIGHT2, GL_AMBIENT, noAmbient);
+	//glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
+	//glLightfv(GL_LIGHT2, GL_POSITION, spotPosition);
 
-	float direction[] = { 0, -1, 0 };
-	glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, direction);
-	glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 10);
-	glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 1.0f);
+	//float direction[] = { 0, -1, 0 };
+	//glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, direction);
+	//glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 10);
+	//glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 1.0f);
 
-	glLightf(GL_LIGHT3, GL_CONSTANT_ATTENUATION, 1.0f);
-	glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION, 0.0f);
-	glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0f);
+	//glLightf(GL_LIGHT3, GL_CONSTANT_ATTENUATION, 1.0f);
+	//glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION, 0.0f);
+	//glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0f);
 
 
 	//*********************************************************************
@@ -376,12 +441,12 @@ setProjection()
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		Pnt3f viewPos = MainTrain.WPos + MainTrain.WOrient * (MainTrain.height / 2) + MainTrain.ViewDir * (MainTrain.length * 1.1f / 2);
+		Pnt3f viewPos = train.Components[0]->GetPosition() + train.Components[0]->GetOrient() * (train.Components[0]->Size.y / 2) + train.Components[0]->GetViewDir() * (train.Components[0]->Size.z * 1.1f / 2);
 		gluLookAt(viewPos.x, viewPos.y, viewPos.z,
-			viewPos.x + MainTrain.ViewDir.x, 
-			viewPos.y + MainTrain.ViewDir.y,
-			viewPos.z + MainTrain.ViewDir.z,
-			MainTrain.WOrient.x, MainTrain.WOrient.y, MainTrain.WOrient.z);
+			viewPos.x + train.Components[0]->GetViewDir().x,
+			viewPos.y + train.Components[0]->GetViewDir().y,
+			viewPos.z + train.Components[0]->GetViewDir().z,
+			train.Components[0]->GetOrient().x, train.Components[0]->GetOrient().y, train.Components[0]->GetOrient().z);
 
 
 #ifdef EXAMPLE_SOLUTION
@@ -503,21 +568,16 @@ void TrainView::SetTrainPos()
 
 	GetPos(m_pTrack->trainU + m_pTrack->TurnCounter, trainPos, trainOrient);
 
-	MainTrain.ViewDir = trainPos - MainTrain.WPos;
-	if (MainTrain.ViewDir.x == 0 && MainTrain.ViewDir.y == 0 && MainTrain.ViewDir.z == 0)
+	Pnt3f dir = trainPos - train.Components[0]->GetPosition();
+	if (dir.x == 0 && dir.y == 0 && dir.z == 0)
 	{
-		GetPos(m_pTrack->trainU + m_pTrack->TurnCounter + 2 * TrainWindow::Step, trainPos, trainOrient);
-		MainTrain.ViewDir = trainPos - MainTrain.WPos;
 
-		MainTrain.ViewDir.normalize();
-		MainTrain.WOrient.normalize();
 	}
 	else
 	{
-		MainTrain.ViewDir.normalize();
-		MainTrain.WPos = trainPos;
-		MainTrain.WOrient = trainOrient;
-		MainTrain.WOrient.normalize();
+		train.SetPosition(trainPos);
+		train.Components[0]->SetViewDir(dir);
+		train.Components[0]->SetOrient(trainOrient);
 	}
 }
 
@@ -558,12 +618,14 @@ void TrainView::drawStuff(bool doingShadows)
 
 	GetPos(0, cpS, cpSo);
 
+
 	for (int i = 0; i < m_pTrack->points.size(); i++)
 	{
+		float dividLine = m_pTrack->PointDistances[i] / 5;
 		float t = i;
-		float percent = 1.0f / DIVIDE_LINE;
+		float percent = 1.0f / dividLine;
 
-		for (int j = 0; j < DIVIDE_LINE; j++)
+		for (int j = 0; j < dividLine; j++)
 		{
 			t += percent;
 			float interval = t - int(t);
@@ -673,9 +735,9 @@ void TrainView::drawStuff(bool doingShadows)
 
 	if (!tw->trainCam->value())
 	{
-		MainTrain.DrawMainBody(doingShadows);
+		train.Draws(doingShadows);
 	}
-	fuckingMan.Draw(doingShadows);
+	fuckingMan.Draws(doingShadows);
 
 	//	call your own train drawing code
 	//####################################################################
@@ -721,6 +783,7 @@ doPick()
 	gluPickMatrix((double)mx, (double)(viewport[3]-my), 
 						5, 5, viewport);
 
+	ComputeDistance();
 	// now set up the projection
 	setProjection();
 

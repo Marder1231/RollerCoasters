@@ -101,7 +101,8 @@
 			[
 				1,
 				3,
-				5
+				5,
+				7
 			]
 		}
 	],
@@ -119,7 +120,8 @@
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				0
+				0,
+				6
 			]
 		},
 		{
@@ -128,7 +130,8 @@
 			[
 				1,
 				3,
-				5
+				5,
+				7
 			]
 		},
 		{
@@ -173,6 +176,17 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/Utilities/Pnt3f.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/TestGuy.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/TestGuy.cpp",
 			"sourceGroupIndex" : 1
 		}
 	],

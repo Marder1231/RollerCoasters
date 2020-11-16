@@ -43,7 +43,6 @@ class CTrack {
 		// than 4 points)
 		void resetPoints();
 
-
 		// read and write to files
 		void readPoints(const char* filename);
 		void writePoints(const char* filename);
@@ -57,6 +56,7 @@ class CTrack {
 		//###################################################################
 		// TODO: you might want to do this differently
 
+		vector<int> PointDistances;
 
 		//###################################################################
 

@@ -116,7 +116,8 @@
 				4,
 				7,
 				9,
-				11
+				11,
+				14
 			]
 		},
 		{
@@ -263,7 +264,15 @@
 				7,
 				9,
 				11,
-				12
+				12,
+				14
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				13
 			]
 		}
 	],
@@ -339,6 +348,17 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 1,
 			"path" : "include/glad4.6/src/glad.c",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/TestGuy.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/TestGuy.cpp",
 			"sourceGroupIndex" : 1
 		}
 	],
