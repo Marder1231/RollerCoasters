@@ -68,7 +68,7 @@ public:
 
 	float NowDistance = 0;
 
-	void Init(Pnt3f _pos)
+	void Init(Pnt3f _pos, Pnt3f _orient)
 	{
 		Pnt3f _size(1, 1, 1);
 
@@ -76,12 +76,9 @@ public:
 		AddComponent(trainHeadSize, Pnt3f(0, 0, 0), 0);
 		int frontColor[3] = { 0, 255, 255 };
 		int topColor[3] = { 255, 255, 0 };
+		Components[0]->SetOrient(_orient);
 		Components[0]->printer.SetSideColor(Components[0]->printer.Top, topColor);
 		Components[0]->printer.SetSideColor(Components[0]->printer.Front, frontColor);
-
-		//Pnt3f trainChildSize(5, 5, 5);
-		//AddComponent(trainChildSize, Pnt3f(0, 0, 0), 1);
-		//Components[1]->printer.SetSideColor(printer.Front, topColor);
 	}
 };
 
@@ -90,6 +87,7 @@ class TrainView : public Fl_Gl_Window
 	public:
 		// note that we keep the "standard widget" constructor arguments
 		TrainView(int x, int y, int w, int h, const char* l = 0);
+		~TrainView();
 
 		void Init();
 
@@ -106,20 +104,26 @@ class TrainView : public Fl_Gl_Window
 		// cleared for you
 		void setProjection();
 
+
 		// Reset the Arc ball control
 		void resetArcball();
 
 		// pick a point (for when the mouse goes down)
 		void doPick();
 
+		void Distance2T(float& _dsitance, int& _turnCounter, float& _trainU);
+		void Distance2Pos(float _distance, Pnt3f& _pos, Pnt3f& _orient);
+		float T2Distance(int& _turnCounter, float& _trianU);
+
 		void GetPos(float const t, Pnt3f& pos, Pnt3f& orient);
 
 		TestGuy fuckingMan;
-		Train train;
+		const int TrainAmount = 4;
+		std::vector<Train*> Trains;
 		void SetTrainPos();
 
 		void ComputeDistance();
-		void ARCMoveTrain(float);
+		void ARCGoGo(float);
 
 		float TotalDistance = 0;
 	public:

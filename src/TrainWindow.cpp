@@ -207,7 +207,7 @@ advanceTrain(float dir)
 	// TODO: make this work for your train
 	if (arcLength->value())
 	{
-		trainView->ARCMoveTrain(speed->value());
+		trainView->ARCGoGo(speed->value());
 	}
 	else
 	{
@@ -216,8 +216,10 @@ advanceTrain(float dir)
 		if (trainView->m_pTrack->trainU >= 1.0f)
 		{
 			trainView->m_pTrack->TurnCounter++;
+			trainView->m_pTrack->TurnCounter %= trainView->m_pTrack->points.size();
 			trainView->m_pTrack->trainU -= 1.0f;
 		}
+		trainView->SetTrainPos();
 	}
 
 	//#####################################################################

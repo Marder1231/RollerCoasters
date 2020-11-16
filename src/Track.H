@@ -64,5 +64,5 @@ class CTrack {
 		// the state of the train - basically, all I need to remember is where
 		// it is in parameter space
 		float trainU = 0.0f;
-		unsigned int TurnCounter = 0;
+		int TurnCounter = 0;
 };

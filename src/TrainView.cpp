@@ -70,22 +70,45 @@ void TrainView::Init()
 {
 	ComputeDistance();
 	
-	Pnt3f pos, orient;
-	GetPos(0, pos, orient);
-	train.Init(pos);
+	for (int i = 0; i < TrainAmount; i++)
+	{
+		Pnt3f pos, orient;
+		Distance2Pos(i * -5, pos, orient);
+		Train* train = new Train();
+		train->Init(pos, orient);
+		Trains.push_back(train);
+	}
 
 	Pnt3f manPos(0, 5, 0);
 	fuckingMan.Init(manPos);
 }
 
-void TrainView::ARCMoveTrain(float _speed)
+TrainView::~TrainView()
 {
-	train.NowDistance += _speed;
-	if (train.NowDistance - TotalDistance > 0)
-		train.NowDistance -= TotalDistance;
+	for (int i = 0; i < Trains.size(); i++)
+	{
+		delete Trains[i];
+	}
+	Trains.clear();
+}
+
+void TrainView::ARCGoGo(float _speed)
+{
+	for (int i = 0; i < TrainAmount; i++)
+	{
+		Trains[i]->NowDistance += _speed;
+		Distance2T(Trains[i]->NowDistance, m_pTrack->TurnCounter, m_pTrack->trainU);
+	}
+}
+void TrainView::Distance2T(float& _dsitance, int& _turnCounter, float& _trainU)
+{
+	if (_dsitance < 0)
+		_dsitance += TotalDistance;
+	if (_dsitance > TotalDistance)
+		_dsitance -= TotalDistance;
 
 	//at where
-	float computeDistance = train.NowDistance;
+	float computeDistance = _dsitance;
 	int nowControlPointIndex = 0;
 	for (int i = 0; i < m_pTrack->points.size(); i++)
 	{
@@ -95,9 +118,31 @@ void TrainView::ARCMoveTrain(float _speed)
 			break;
 	}
 
-	m_pTrack->TurnCounter = nowControlPointIndex;
-	m_pTrack->trainU = (computeDistance + m_pTrack->PointDistances[nowControlPointIndex])
+	_turnCounter = nowControlPointIndex;
+	_trainU = (computeDistance + m_pTrack->PointDistances[nowControlPointIndex])
 		/ m_pTrack->PointDistances[nowControlPointIndex];
+}
+void TrainView::Distance2Pos(float _distance, Pnt3f& _pos, Pnt3f& _orient)
+{
+	int _turnCounter = 0;
+	float _trainU = 0;
+	Distance2T(_distance, _turnCounter, _trainU);
+
+	GetPos(_turnCounter + _trainU, _pos, _orient);
+}
+float TrainView::T2Distance(int& _turnCounter, float& _trianU)
+{
+	float _distance = 0;
+	for (int i = 0; i < _turnCounter; i++)
+	{
+		_distance += m_pTrack->PointDistances[i];
+	}
+
+	int nextIndex = _turnCounter;
+	if (nextIndex < 0)
+		nextIndex = 0;
+	_distance += m_pTrack->PointDistances[nextIndex] * _trianU;
+	return _distance;
 }
 void TrainView::ComputeDistance()
 {
@@ -441,12 +486,14 @@ setProjection()
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		Pnt3f viewPos = train.Components[0]->GetPosition() + train.Components[0]->GetOrient() * (train.Components[0]->Size.y / 2) + train.Components[0]->GetViewDir() * (train.Components[0]->Size.z * 1.1f / 2);
+		Pnt3f viewPos = Trains[0]->Components[0]->GetPosition() + Trains[0]->Components[0]->GetOrient() * (Trains[0]->Components[0]->Size.y / 2) + Trains[0]->Components[0]->GetViewDir() * (Trains[0]->Components[0]->Size.z * 1.1f / 2);
 		gluLookAt(viewPos.x, viewPos.y, viewPos.z,
-			viewPos.x + train.Components[0]->GetViewDir().x,
-			viewPos.y + train.Components[0]->GetViewDir().y,
-			viewPos.z + train.Components[0]->GetViewDir().z,
-			train.Components[0]->GetOrient().x, train.Components[0]->GetOrient().y, train.Components[0]->GetOrient().z);
+			viewPos.x + Trains[0]->Components[0]->GetViewDir().x,
+			viewPos.y + Trains[0]->Components[0]->GetViewDir().y,
+			viewPos.z + Trains[0]->Components[0]->GetViewDir().z,
+			Trains[0]->Components[0]->GetOrient().x, 
+			Trains[0]->Components[0]->GetOrient().y,
+			Trains[0]->Components[0]->GetOrient().z);
 
 
 #ifdef EXAMPLE_SOLUTION
@@ -568,16 +615,38 @@ void TrainView::SetTrainPos()
 
 	GetPos(m_pTrack->trainU + m_pTrack->TurnCounter, trainPos, trainOrient);
 
-	Pnt3f dir = trainPos - train.Components[0]->GetPosition();
+	Pnt3f dir = trainPos - Trains[0]->Components[0]->GetPosition();
 	if (dir.x == 0 && dir.y == 0 && dir.z == 0)
 	{
 
 	}
 	else
 	{
-		train.SetPosition(trainPos);
-		train.Components[0]->SetViewDir(dir);
-		train.Components[0]->SetOrient(trainOrient);
+		Trains[0]->SetPosition(trainPos);
+		Trains[0]->Components[0]->SetViewDir(dir);
+		Trains[0]->Components[0]->SetOrient(trainOrient);
+	}
+
+	float headDistance = T2Distance(m_pTrack->TurnCounter, m_pTrack->trainU);
+	for (int i = 1; i < TrainAmount; i++)
+	{
+		float _distance = headDistance - i * 12.46f;
+		Pnt3f _pos;
+		Pnt3f _orient;
+
+		Distance2Pos(_distance, _pos, _orient);
+
+		Pnt3f _dir = _pos - Trains[i]->Components[0]->GetPosition();
+		if (dir.x == 0 && dir.y == 0 && dir.z == 0)
+		{
+
+		}
+		else
+		{
+			Trains[i]->SetPosition(_pos);
+			Trains[i]->Components[0]->SetViewDir(_dir);
+			Trains[i]->Components[0]->SetOrient(_orient);
+		}
 	}
 }
 
@@ -735,7 +804,8 @@ void TrainView::drawStuff(bool doingShadows)
 
 	if (!tw->trainCam->value())
 	{
-		train.Draws(doingShadows);
+		for (int i = 0; i < TrainAmount; i++)
+			Trains[i]->Draws(doingShadows);
 	}
 	fuckingMan.Draws(doingShadows);
 
