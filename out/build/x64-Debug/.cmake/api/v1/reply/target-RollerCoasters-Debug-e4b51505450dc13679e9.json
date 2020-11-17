@@ -272,7 +272,8 @@
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				13
+				13,
+				15
 			]
 		}
 	],
@@ -360,6 +361,11 @@
 			"compileGroupIndex" : 0,
 			"path" : "src/TestGuy.cpp",
 			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/Lamp.h",
+			"sourceGroupIndex" : 2
 		}
 	],
 	"type" : "EXECUTABLE"

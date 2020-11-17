@@ -5,10 +5,13 @@
 #include <map>
 #include <Windows.h>
 
+const double PI = 3.141592;
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include "GL/glu.h"
 #include "Utilities/Pnt3f.H"
+#include "Utilities/3DUtils.h"
 
 namespace NPGameObject
 {
@@ -33,14 +36,17 @@ namespace NPGameObject
 				}
 			}
 		}
-		enum EmSideIndex
+		struct EmSideIndex
 		{
-			Top = 0,
-			Front,
-			Right,
-			Left,
-			Back,
-			Bottom,
+			enum _
+			{
+				Top = 0,
+				Front,
+				Right,
+				Left,
+				Back,
+				Bottom,
+			};
 		};
 		enum class EmRGB
 		{
@@ -51,6 +57,15 @@ namespace NPGameObject
 			G = 1,
 			B = 2,
 		};
+
+		//the center pos at where
+		enum class EmDrawMethod
+		{
+			Center = 0,
+			Top = 1,
+			Side = 2,
+		}DrawMethod = EmDrawMethod::Center;
+
 		void SetSideColor(int _where, int _color[3])
 		{
 			sideColor[_where][0] = _color[0];
@@ -58,7 +73,7 @@ namespace NPGameObject
 			sideColor[_where][2] = _color[2];
 		}
 
-		void SideDrawer(int _where, Pnt3f _size, bool doingShadows = false)
+		void SideDrawer(int _where, Pnt3f _size, bool doingShadows = false, EmDrawMethod method = EmDrawMethod::Center)
 		{
 			if (!doingShadows)
 				glColor3ub(sideColor[_where][0], sideColor[_where][1], sideColor[_where][2]);
@@ -67,49 +82,143 @@ namespace NPGameObject
 			float height = _size.y;
 			float length = _size.z;
 
-			switch (_where)
+			if (method == EmDrawMethod::Center)
 			{
-			case EmSideIndex::Top:
-				glVertex3f(width / 2, height / 2, length / 2);
-				glVertex3f(width / 2, height / 2, -length / 2);
-				glVertex3f(-width / 2, height / 2, -length / 2);
-				glVertex3f(-width / 2, height / 2, length / 2);
-				break;
-			case EmSideIndex::Back:
-				glVertex3f(width / 2, height / 2, -length / 2);
-				glVertex3f(-width / 2, height / 2, -length / 2);
-				glVertex3f(-width / 2, -height / 2, -length / 2);
-				glVertex3f(width / 2, -height / 2, -length / 2);
-				break;
-			case EmSideIndex::Front:
-				glVertex3f(width / 2, height / 2, length / 2);
-				glVertex3f(-width / 2, height / 2, length / 2);
-				glVertex3f(-width / 2, -height / 2, length / 2);
-				glVertex3f(width / 2, -height / 2, length / 2);
-				break;
-			case EmSideIndex::Bottom:
-				glVertex3f(width / 2, -height / 2, length / 2);
-				glVertex3f(width / 2, -height / 2, -length / 2);
-				glVertex3f(-width / 2, -height / 2, -length / 2);
-				glVertex3f(-width / 2, -height / 2, length / 2);
-				break;
-			case EmSideIndex::Right:
-				glVertex3f(width / 2, height / 2, -length / 2);
-				glVertex3f(width / 2, height / 2, length / 2);
-				glVertex3f(width / 2, -height / 2, length / 2);
-				glVertex3f(width / 2, -height / 2, -length / 2);
-				break;
-			case EmSideIndex::Left:
-				glVertex3f(-width / 2, height / 2, -length / 2);
-				glVertex3f(-width / 2, height / 2, length / 2);
-				glVertex3f(-width / 2, -height / 2, length / 2);
-				glVertex3f(-width / 2, -height / 2, -length / 2);
-				break;
-			default:
-				break;
+				switch (_where)
+				{
+				case EmSideIndex::EmSideIndex::Top:
+					glVertex3f(width / 2, height / 2, length / 2);
+					glVertex3f(width / 2, height / 2, -length / 2);
+					glVertex3f(-width / 2, height / 2, -length / 2);
+					glVertex3f(-width / 2, height / 2, length / 2);
+					break;
+				case EmSideIndex::EmSideIndex::Back:
+					glVertex3f(width / 2, height / 2, -length / 2);
+					glVertex3f(-width / 2, height / 2, -length / 2);
+					glVertex3f(-width / 2, -height / 2, -length / 2);
+					glVertex3f(width / 2, -height / 2, -length / 2);
+					break;
+				case EmSideIndex::EmSideIndex::Front:
+					glVertex3f(width / 2, height / 2, length / 2);
+					glVertex3f(-width / 2, height / 2, length / 2);
+					glVertex3f(-width / 2, -height / 2, length / 2);
+					glVertex3f(width / 2, -height / 2, length / 2);
+					break;
+				case EmSideIndex::EmSideIndex::Bottom:
+					glVertex3f(width / 2, -height / 2, length / 2);
+					glVertex3f(width / 2, -height / 2, -length / 2);
+					glVertex3f(-width / 2, -height / 2, -length / 2);
+					glVertex3f(-width / 2, -height / 2, length / 2);
+					break;
+				case EmSideIndex::EmSideIndex::Right:
+					glVertex3f(width / 2, height / 2, -length / 2);
+					glVertex3f(width / 2, height / 2, length / 2);
+					glVertex3f(width / 2, -height / 2, length / 2);
+					glVertex3f(width / 2, -height / 2, -length / 2);
+					break;
+				case EmSideIndex::EmSideIndex::Left:
+					glVertex3f(-width / 2, height / 2, -length / 2);
+					glVertex3f(-width / 2, height / 2, length / 2);
+					glVertex3f(-width / 2, -height / 2, length / 2);
+					glVertex3f(-width / 2, -height / 2, -length / 2);
+					break;
+				default:
+					break;
+				}
+			}
+			else if (method == EmDrawMethod::Top)
+			{
+				switch (_where)
+				{
+				case EmSideIndex::Top:
+					glVertex3f(width / 2, height, length / 2);
+					glVertex3f(width / 2, height, -length / 2);
+					glVertex3f(-width / 2, height, -length / 2);
+					glVertex3f(-width / 2, height, length / 2);
+					break;
+				case EmSideIndex::Back:
+					glVertex3f(width / 2, height, -length / 2);
+					glVertex3f(-width / 2, height, -length / 2);
+					glVertex3f(-width / 2,0, -length / 2);
+					glVertex3f(width / 2, 0, -length / 2);
+					break;
+				case EmSideIndex::Front:
+					glVertex3f(width / 2,  height, length / 2);
+					glVertex3f(-width / 2, height, length / 2);
+					glVertex3f(-width / 2, 0, length / 2);
+					glVertex3f(width / 2,  0, length / 2);
+					break;
+				case EmSideIndex::Bottom:
+					glVertex3f(width / 2,  0, length / 2);
+					glVertex3f(width / 2,  0, -length / 2);
+					glVertex3f(-width / 2, 0, -length / 2);
+					glVertex3f(-width / 2, 0, length / 2);
+					break;
+				case EmSideIndex::Right:
+					glVertex3f(width / 2, height, -length / 2);
+					glVertex3f(width / 2, height, length / 2);
+					glVertex3f(width / 2, 0, length / 2);
+					glVertex3f(width / 2, 0, -length / 2);
+					break;
+				case EmSideIndex::Left:
+					glVertex3f(-width / 2, height, -length / 2);
+					glVertex3f(-width / 2, height, length / 2);
+					glVertex3f(-width / 2, 0, length / 2);
+					glVertex3f(-width / 2, 0, -length / 2);
+					break;
+				default:
+					break;
+
+
+				}
+			}
+			else if (method == EmDrawMethod::Side)
+			{
+				switch (_where)
+				{
+				case EmSideIndex::EmSideIndex::Top:
+					glVertex3f(width / 2, height / 2, length);
+					glVertex3f(width / 2, height / 2, 0);
+					glVertex3f(-width / 2, height / 2, 0);
+					glVertex3f(-width / 2, height / 2, length);
+					break;
+				case EmSideIndex::EmSideIndex::Back:
+					glVertex3f(width / 2, height / 2,  0);
+					glVertex3f(-width / 2, height / 2, 0);
+					glVertex3f(-width / 2, -height / 2, 0);
+					glVertex3f(width / 2, -height / 2, 0);
+					break;
+				case EmSideIndex::EmSideIndex::Front:
+					glVertex3f(width / 2, height / 2, length);
+					glVertex3f(-width / 2, height / 2, length);
+					glVertex3f(-width / 2, -height / 2, length);
+					glVertex3f(width / 2, -height / 2, length);
+					break;
+				case EmSideIndex::EmSideIndex::Bottom:
+					glVertex3f(width / 2, -height / 2, length);
+					glVertex3f(width / 2, -height / 2, 0);
+					glVertex3f(-width / 2, -height / 2,0);
+					glVertex3f(-width / 2, -height / 2, length);
+					break;
+				case EmSideIndex::EmSideIndex::Right:
+					glVertex3f(width / 2, height / 2, 0);
+					glVertex3f(width / 2, height / 2, length);
+					glVertex3f(width / 2, -height / 2, length);
+					glVertex3f(width / 2, -height / 2, 0);
+					break;
+				case EmSideIndex::EmSideIndex::Left:
+					glVertex3f(-width / 2, height / 2, 0);
+					glVertex3f(-width / 2, height / 2,  length);
+					glVertex3f(-width / 2, -height / 2, length);
+					glVertex3f(-width / 2, -height / 2, 0);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	};
+
 
 	class BasicObject
 	{
@@ -163,11 +272,11 @@ namespace NPGameObject
 			position = _pos;
 			Size = _size;
 			orient = Pnt3f(0, 1, 0);
-			viewDir = Pnt3f(1, 0, 0);
+			viewDir = Pnt3f(0, 0, 1);
 			localPosition = Pnt3f(0, 0, 0);
 		}
 
-		void CenterDraw(bool doingShadows)
+		void Draw(bool doingShadows)
 		{
 			Pnt3f u = viewDir; u.normalize();
 			Pnt3f w = u * orient; w.normalize();
@@ -186,12 +295,12 @@ namespace NPGameObject
 			glRotatef(90, 0, 1, 0);
 			glBegin(GL_QUADS);
 
-			printer.SideDrawer(CubePrinter::EmSideIndex::Top, Size, doingShadows);
-			printer.SideDrawer(CubePrinter::EmSideIndex::Bottom, Size, doingShadows);
-			printer.SideDrawer(CubePrinter::EmSideIndex::Front, Size, doingShadows);
-			printer.SideDrawer(CubePrinter::EmSideIndex::Back, Size, doingShadows);
-			printer.SideDrawer(CubePrinter::EmSideIndex::Right, Size, doingShadows);
-			printer.SideDrawer(CubePrinter::EmSideIndex::Left, Size, doingShadows);
+			printer.SideDrawer(CubePrinter::EmSideIndex::Top, Size, doingShadows, printer.DrawMethod);
+			printer.SideDrawer(CubePrinter::EmSideIndex::Bottom, Size, doingShadows, printer.DrawMethod);
+			printer.SideDrawer(CubePrinter::EmSideIndex::Front, Size, doingShadows, printer.DrawMethod);
+			printer.SideDrawer(CubePrinter::EmSideIndex::Back, Size, doingShadows, printer.DrawMethod);
+			printer.SideDrawer(CubePrinter::EmSideIndex::Right, Size, doingShadows, printer.DrawMethod);
+			printer.SideDrawer(CubePrinter::EmSideIndex::Left, Size, doingShadows, printer.DrawMethod);
 
 			glEnd();
 			glPopMatrix();
@@ -221,13 +330,11 @@ namespace NPGameObject
 			Size = _size;
 		}
 
-		int index = -1;
 	public:
-		Component() : NPGameObject::BasicObject() { }
-		Component(Pnt3f _pos, Pnt3f _size) : NPGameObject::BasicObject(_pos, _size) { }
-		Component(Pnt3f _pos, Pnt3f _size, BasicObject* parent, Pnt3f modifyPos, int _index)
+		int index = -1;
+		Component(Pnt3f _size, BasicObject* parent, Pnt3f modifyPos, int _index)
 		{
-			Init(_pos, parent, modifyPos);
+			Init(_size, parent, modifyPos);
 			index = _index;
 		}
 
@@ -262,8 +369,12 @@ namespace NPGameObject
 
 		void AddComponent(Pnt3f _size, Pnt3f _modifyPos, int _index)
 		{
-			Component* newComponent = new Component(_size, this->GetPosition(), this, _modifyPos, _index);
+			Component* newComponent = new Component(_size, this, _modifyPos, _index);
 			Components[_index] = newComponent;
+		}
+		void AddComponent(Component* _compoenent, int _index)
+		{
+			Components[_index] = _compoenent;
 		}
 
 		virtual void SetOrient(Pnt3f _pos) override
@@ -303,7 +414,7 @@ namespace NPGameObject
 		{
 			for (auto& partial : Components)
 			{
-				partial.second->CenterDraw(doingShadows);
+				partial.second->Draw(doingShadows);
 			}
 		}
 
@@ -340,6 +451,57 @@ public:
 		};
 	};
 
+	class RightHand : public Component
+	{
+	public:
+		RightHand(Pnt3f _size, BasicObject* parent, Pnt3f modifyPos, int _index) : Component(_size, parent, modifyPos, _index) { }
+
+		int HandUpCounter = 0;
+		bool HandUping = true;
+		void HandUp()
+		{
+			if (HandUping == true)
+				HandUpCounter++;
+			else
+				HandUpCounter--;
+
+			if (HandUpCounter > 9)
+				HandUping = false;
+			else if (HandUpCounter < 0)
+				HandUping = true;
+
+			float radian = 10 * PI / 180.0;
+			if (HandUping == false)
+				radian = -radian;
+
+			glm::vec3 _orient = { GetOrient().x, GetOrient().y, GetOrient().z };
+			glm::vec3 _viewDir = { GetViewDir().x, GetViewDir().y, GetViewDir().z };
+			glm::mat3x3 rotation = {
+				1, 0, 0,
+				0, cos(radian), -sin(radian),
+				0, sin(radian), cos(radian)
+			};
+			glm::vec3 newOrient = rotation * _orient;
+			glm::vec3 newViewDir = rotation * _viewDir;
+			
+			GetOrient().x = newOrient.x;
+			GetOrient().y = newOrient.y;
+			GetOrient().z = newOrient.z;
+			GetOrient().normalize();
+
+			GetViewDir().x = newViewDir.x;
+			GetViewDir().y = newViewDir.y;
+			GetViewDir().z = newViewDir.z;
+			GetViewDir().normalize();
+		}
+	};
+
+	void HandUp()
+	{
+		RightHand* rightHand = dynamic_cast<RightHand*>(Components[EmBodyPartial::RightHand]);
+		rightHand->HandUp();
+	}
+
 	void Init(Pnt3f _pos)
 	{
 		Pnt3f _size(1, 1, 1);
@@ -349,14 +511,20 @@ public:
 		Pnt3f bodyModifyPos(0, 0, 0);
 		AddComponent(bodySize, bodyModifyPos, EmBodyPartial::Body);
 
-		Pnt3f headSize(1.5f, 1.5f, 1.5f);
-		Pnt3f headModifyPos(0, Size.y / 2, 0);
+		Pnt3f headSize(3.5f, 2, 3.5f);
+		Pnt3f headModifyPos(0, Components[EmBodyPartial::Body]->Size.y / 2, 0);
 		AddComponent(headSize, headModifyPos, EmBodyPartial::Head);
+		int greenColor[3] = { 0, 255, 0 };
+		int redColor[3] = { 255, 0, 0 };
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Top, greenColor);
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Front, redColor);
 
 		Pnt3f handSize(1, 5, 1);
 		Pnt3f rightHandModifyPos(Components[EmBodyPartial::Body]->Size.x / 2.0, Components[EmBodyPartial::Body]->Size.y / 2, 0);
-		AddComponent(handSize, rightHandModifyPos, EmBodyPartial::RightHand);
+		RightHand* rightHand = new RightHand(handSize, this, rightHandModifyPos, EmBodyPartial::RightHand);
+		AddComponent(rightHand, rightHand->index);
 		Components[EmBodyPartial::RightHand]->SetOrient(Pnt3f(
 			Components[EmBodyPartial::RightHand]->GetOrient().x, -1, Components[EmBodyPartial::RightHand]->GetOrient().z));
+		Components[EmBodyPartial::RightHand]->printer.DrawMethod = CubePrinter::EmDrawMethod::Top;
 	}
 };

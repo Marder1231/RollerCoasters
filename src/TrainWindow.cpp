@@ -222,6 +222,8 @@ advanceTrain(float dir)
 		trainView->SetTrainPos();
 	}
 
+	trainView->fuckingMan.HandUp();
+
 	//#####################################################################
 #ifdef EXAMPLE_SOLUTION
 	// note - we give a little bit more example code here than normal,

@@ -44,8 +44,6 @@
 
 /*
 	addition :
-		$$$ arc,
-		refactor draw train
 		lamp with light, 
 		a raycast at viewspace center
 		smoke,
@@ -347,12 +345,12 @@ void TrainView::draw()
 
 	// top view only needs one light
 	if (tw->topCam->value()) {
-		glDisable(GL_LIGHT1);
-		glDisable(GL_LIGHT2);
+		//glDisable(GL_LIGHT1);
+		//glDisable(GL_LIGHT2);
 	}
 	else {
-		glEnable(GL_LIGHT1);
-		glEnable(GL_LIGHT2);
+		//glEnable(GL_LIGHT1);
+		//glEnable(GL_LIGHT2);
 	}
 
 	//*********************************************************************
@@ -368,7 +366,7 @@ void TrainView::draw()
 	GLfloat blueLight[] = { .1f,.1f,.3f,1.0 };
 	GLfloat grayLight[] = { .3f, .3f, .3f, 1.0 };
 
-	/*
+	
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, grayLight);
@@ -378,14 +376,32 @@ void TrainView::draw()
 
 	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
-	*/
-	float DirnoAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	float blueAmbientDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float position[] = { 1.0f, 0.0f, 1.0f, 0.0f };
-	glLightfv(GL_LIGHT1, GL_AMBIENT, DirnoAmbient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, blueAmbientDiffuse);
-	glLightfv(GL_LIGHT1, GL_POSITION, position);
+	
+	//float DirnoAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//float blueAmbientDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	//float position[] = { 1.0f, 0.0f, 1.0f, 0.0f };
+	//glLightfv(GL_LIGHT1, GL_AMBIENT, DirnoAmbient);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, blueAmbientDiffuse);
+	//glLightfv(GL_LIGHT1, GL_POSITION, position);
 
+
+	float noAmbient[] = { 0, 0, 1, 1.0f };
+	float diffuse[] = { 0, 0.2, 0.2, 1 };
+	float position[] = { 0, 10, 0, 1 };
+
+	glLightfv(GL_LIGHT2, GL_AMBIENT, noAmbient);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT2, GL_POSITION, position);
+
+	float direction[] = { 0, -1, 0 };
+
+	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, direction);
+	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, GL_SPOT_CUTOFF);
+	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 5);
+
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1);
+	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
 
 	//float noAmbient[] = { 0, 0, 0.2f, 1 };
 	//float diffuse[] = { 1, 0, 1, 1 };
@@ -440,8 +456,7 @@ void TrainView::draw()
 //   HOWEVER: it doesn't clear the projection first (the caller handles
 //   that) - its important for picking
 //========================================================================
-void TrainView::
-setProjection()
+void TrainView::setProjection()
 //========================================================================
 {
 	// Compute the aspect ratio (we'll need it)
@@ -696,6 +711,7 @@ void TrainView::drawStuff(bool doingShadows)
 
 		for (int j = 0; j < dividLine; j++)
 		{
+			
 			t += percent;
 			float interval = t - int(t);
 
@@ -734,6 +750,18 @@ void TrainView::drawStuff(bool doingShadows)
 				w.x, w.y, w.z, 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f,
 			};
+
+			//set lamp
+			if (j % 3 == 2)
+			{
+				Lamp lamp;
+				lamp.Init(cpN + cross);
+				lamp.SetOrient(cpNo);
+				lamp.SetViewDir(-1 * cross);
+				lamp.GetViewDir().y = -cross.y;
+				lamp.SwitchLight(true);
+				lamp.Draws(doingShadows);
+			}
 
 			glPushMatrix();
 			glTranslatef(cpN.x, cpN.y, cpN.z);

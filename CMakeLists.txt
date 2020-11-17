@@ -24,7 +24,7 @@ add_executable(RollerCoasters
     ${SRC_DIR}TrainView.cpp
     ${SRC_DIR}TrainWindow.h
     ${SRC_DIR}TrainWindow.cpp
-    ${INCLUDE_DIR}glad4.6/src/glad.c "src/TestGuy.h" "src/TestGuy.cpp")
+    ${INCLUDE_DIR}glad4.6/src/glad.c "src/TestGuy.h" "src/TestGuy.cpp" "src/Lamp.h")
 
 add_library(Utilities 
     ${SRC_DIR}Utilities/3DUtils.h
@@ -32,7 +32,7 @@ add_library(Utilities
     ${SRC_DIR}Utilities/ArcBallCam.h
     ${SRC_DIR}Utilities/ArcBallCam.cpp
     ${SRC_DIR}Utilities/Pnt3f.h
-    ${SRC_DIR}Utilities/Pnt3f.cpp "src/TestGuy.h" "src/TestGuy.cpp")
+    ${SRC_DIR}Utilities/Pnt3f.cpp "src/TestGuy.h" "src/TestGuy.cpp" "src/Lamp.h")
 
 target_link_libraries(RollerCoasters 
     debug ${LIB_DIR}Debug/fltk_formsd.lib      optimized ${LIB_DIR}Release/fltk_forms.lib

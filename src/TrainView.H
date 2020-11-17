@@ -51,6 +51,7 @@ class CTrack;
 #include <glm/glm.hpp>
 #include "GL/glu.h"
 #include "TestGuy.h"
+#include "Lamp.h"
 #pragma warning(pop)
 
 
@@ -77,8 +78,8 @@ public:
 		int frontColor[3] = { 0, 255, 255 };
 		int topColor[3] = { 255, 255, 0 };
 		Components[0]->SetOrient(_orient);
-		Components[0]->printer.SetSideColor(Components[0]->printer.Top, topColor);
-		Components[0]->printer.SetSideColor(Components[0]->printer.Front, frontColor);
+		Components[0]->printer.SetSideColor(CubePrinter::EmSideIndex::Top, topColor);
+		Components[0]->printer.SetSideColor(CubePrinter::EmSideIndex::Front, frontColor);
 	}
 };
 
