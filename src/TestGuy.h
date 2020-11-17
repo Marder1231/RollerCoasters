@@ -382,8 +382,28 @@ namespace NPGameObject
 			_pos.normalize();
 			BasicObject::SetOrient(_pos);
 
+			//$$$ not change children orient
 			for (auto& partial : Components)
 			{
+				Pnt3f u = this->GetViewDir(); u.normalize();
+				Pnt3f w = u * this->GetOrient(); w.normalize();
+				Pnt3f v = w * u; v.normalize();
+				glm::mat4x4 rotation =
+				{
+					u.x, u.y, u.z, 0.0f,
+					v.x, v.y, v.z, 0.0f,
+					w.x, w.y, w.z, 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f
+				};
+				glm::vec4 curPos = { partial.second->GetLocalPosition().x,
+									 partial.second->GetLocalPosition().y,
+									 partial.second->GetLocalPosition().z,
+									 1};
+				glm::vec4 newPos = rotation * curPos;
+
+				partial.second->SetPosition(Pnt3f(newPos.x + this->GetPosition().x, 
+												  newPos.y + this->GetPosition().y, 
+												  newPos.z + this->GetPosition().z) );
 				partial.second->SetOrient(_pos);
 			}
 		}
@@ -406,6 +426,25 @@ namespace NPGameObject
 
 			for (auto& partial : Components)
 			{
+				Pnt3f u = this->GetViewDir(); u.normalize();
+				Pnt3f w = u * this->GetOrient(); w.normalize();
+				Pnt3f v = w * u; v.normalize();
+				glm::mat4x4 rotation =
+				{
+					u.x, u.y, u.z, 0.0f,
+					v.x, v.y, v.z, 0.0f,
+					w.x, w.y, w.z, 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f
+				};
+				glm::vec4 curPos = { partial.second->GetLocalPosition().x,
+									 partial.second->GetLocalPosition().y,
+									 partial.second->GetLocalPosition().z,
+									 1 };
+				glm::vec4 newPos = rotation * curPos;
+
+				partial.second->SetPosition(Pnt3f(newPos.x + this->GetPosition().x,
+					newPos.y + this->GetPosition().y,
+					newPos.z + this->GetPosition().z));
 				partial.second->SetViewDir(_pos);
 			}
 		}

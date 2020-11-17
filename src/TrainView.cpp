@@ -758,7 +758,6 @@ void TrainView::drawStuff(bool doingShadows)
 				lamp.Init(cpN + cross);
 				lamp.SetOrient(cpNo);
 				lamp.SetViewDir(-1 * cross);
-				lamp.GetViewDir().y = -cross.y;
 				lamp.SwitchLight(true);
 				lamp.Draws(doingShadows);
 			}
