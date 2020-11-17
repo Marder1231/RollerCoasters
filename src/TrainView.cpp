@@ -71,7 +71,7 @@ void TrainView::Init()
 	for (int i = 0; i < TrainAmount; i++)
 	{
 		Pnt3f pos, orient;
-		Distance2Pos(i * -5, pos, orient);
+		Distance2Pos(i * -12.46f, pos, orient);
 		Train* train = new Train();
 		train->Init(pos, orient);
 		Trains.push_back(train);
@@ -341,84 +341,48 @@ void TrainView::draw()
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-
-	// top view only needs one light
-	if (tw->topCam->value()) {
-		//glDisable(GL_LIGHT1);
-		//glDisable(GL_LIGHT2);
-	}
-	else {
-		//glEnable(GL_LIGHT1);
-		//glEnable(GL_LIGHT2);
-	}
 
 	//*********************************************************************
 	//
 	// * set the light parameters
 	//
 	//**********************************************************************
+
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+
 	GLfloat lightPosition1[] = { 0,1,1,0 }; // {50, 200.0, 50, 1.0};
 	GLfloat lightPosition2[] = { 1, 0, 0, 0 };
 	GLfloat lightPosition3[] = { 0, -1, 0, 0 };
 	GLfloat yellowLight[] = { 0.5f, 0.5f, .1f, 1.0 };
-	GLfloat whiteLight[] = { 1.0f, 1.0f, 1.0f, 1.0 };
+	GLfloat whiteLight[] = { .5f, .5f, .5f, 1.0 };
 	GLfloat blueLight[] = { .1f,.1f,.3f,1.0 };
-	GLfloat grayLight[] = { .3f, .3f, .3f, 1.0 };
+	GLfloat grayLight[] = { .15f, .15f, .15f, 1.0 };
 
-	
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
+
+	float position[] = { 0, 1, 0, 0 };
+	float noAmbient[] = { 0.246, 0.246, 0.246, 1 };
+	glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, grayLight);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowLight);
+	float spotLight_noAmbient[] = { 0, 0, 0.01f, 1 };
+	float spotLight_diffuse[] = { 0, 0, 1, 1 };
+	Pnt3f trainPos = Trains[0]->GetPosition();
+	float spotLight_position[] = { 0, 1, 0, 1 };
 
-	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
-	
-	//float DirnoAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//float blueAmbientDiffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//float position[] = { 1.0f, 0.0f, 1.0f, 0.0f };
-	//glLightfv(GL_LIGHT1, GL_AMBIENT, DirnoAmbient);
-	//glLightfv(GL_LIGHT1, GL_DIFFUSE, blueAmbientDiffuse);
-	//glLightfv(GL_LIGHT1, GL_POSITION, position);
-
-
-	float noAmbient[] = { 0, 0, 1, 1.0f };
-	float diffuse[] = { 0, 0.2, 0.2, 1 };
-	float position[] = { 0, 10, 0, 1 };
-
-	glLightfv(GL_LIGHT2, GL_AMBIENT, noAmbient);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT2, GL_POSITION, position);
-
+	glLightfv(GL_LIGHT1, GL_AMBIENT, spotLight_noAmbient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, spotLight_diffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, spotLight_position);
 	float direction[] = { 0, -1, 0 };
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, direction);
 
-	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, direction);
-	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, GL_SPOT_CUTOFF);
-	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 5);
-
-	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1);
-	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
-	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
-
-	//float noAmbient[] = { 0, 0, 0.2f, 1 };
-	//float diffuse[] = { 1, 0, 1, 1 };
-	//float spotPosition[] = { 0, 10, 0, 1 };
-
-	//glLightfv(GL_LIGHT2, GL_AMBIENT, noAmbient);
-	//glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
-	//glLightfv(GL_LIGHT2, GL_POSITION, spotPosition);
-
-	//float direction[] = { 0, -1, 0 };
-	//glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, direction);
-	//glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 10);
-	//glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 1.0f);
-
-	//glLightf(GL_LIGHT3, GL_CONSTANT_ATTENUATION, 1.0f);
-	//glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION, 0.0f);
-	//glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0f);
+	const GLfloat spotCutoff = 5;
+	glLightfv(GL_LIGHT1, GL_SPOT_CUTOFF, &spotCutoff);
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 15.0f);
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);
 
 
 	//*********************************************************************
@@ -638,8 +602,8 @@ void TrainView::SetTrainPos()
 	else
 	{
 		Trains[0]->SetPosition(trainPos);
-		Trains[0]->Components[0]->SetViewDir(dir);
-		Trains[0]->Components[0]->SetOrient(trainOrient);
+		Trains[0]->SetViewDir(dir);
+		Trains[0]->SetOrient(trainOrient);
 	}
 
 	float headDistance = T2Distance(m_pTrack->TurnCounter, m_pTrack->trainU);
@@ -659,8 +623,8 @@ void TrainView::SetTrainPos()
 		else
 		{
 			Trains[i]->SetPosition(_pos);
-			Trains[i]->Components[0]->SetViewDir(_dir);
-			Trains[i]->Components[0]->SetOrient(_orient);
+			Trains[i]->SetViewDir(_dir);
+			Trains[i]->SetOrient(_orient);
 		}
 	}
 }
@@ -755,7 +719,7 @@ void TrainView::drawStuff(bool doingShadows)
 			if (j % 3 == 2)
 			{
 				Lamp lamp;
-				lamp.Init(cpN + cross);
+				lamp.Init(cpN + (2.46f *cross));
 				lamp.SetOrient(cpNo);
 				lamp.SetViewDir(-1 * cross);
 				lamp.SwitchLight(true);

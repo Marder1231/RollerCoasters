@@ -382,7 +382,6 @@ namespace NPGameObject
 			_pos.normalize();
 			BasicObject::SetOrient(_pos);
 
-			//$$$ not change children orient
 			for (auto& partial : Components)
 			{
 				Pnt3f u = this->GetViewDir(); u.normalize();

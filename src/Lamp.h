@@ -59,6 +59,14 @@ public:
 		Pnt3f bodyModifyPos(0, 0, 0);
 		AddComponent(bodySize, bodyModifyPos, EmBodyPartial::Body);
 		Components[EmBodyPartial::Body]->printer.DrawMethod = CubePrinter::EmDrawMethod::Top;
+		int bodyColor[3] = { 66, 66, 0};
+		Components[EmBodyPartial::Body]->printer.SetSideColor(CubePrinter::EmSideIndex::Top, bodyColor);
+		Components[EmBodyPartial::Body]->printer.SetSideColor(CubePrinter::EmSideIndex::Back, bodyColor);
+		Components[EmBodyPartial::Body]->printer.SetSideColor(CubePrinter::EmSideIndex::Bottom, bodyColor);
+		Components[EmBodyPartial::Body]->printer.SetSideColor(CubePrinter::EmSideIndex::Front, bodyColor);
+		Components[EmBodyPartial::Body]->printer.SetSideColor(CubePrinter::EmSideIndex::Right, bodyColor);
+		Components[EmBodyPartial::Body]->printer.SetSideColor(CubePrinter::EmSideIndex::Left, bodyColor);
+
 
 		Pnt3f headSize(2, 1, 4);
 		Pnt3f headModifyPos(0, Components[EmBodyPartial::Body]->Size.y, 0);
@@ -66,6 +74,13 @@ public:
 		AddComponent(lampShade, EmBodyPartial::Head);
 		Components[EmBodyPartial::Head]->printer.DrawMethod = CubePrinter::EmDrawMethod::Side;
 		Components[EmBodyPartial::Head]->SetOrient(Pnt3f(1, 0, 0));
+		int lightColor[3] = { 255, 146, 36 };
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Top, bodyColor);
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Back, bodyColor);
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Front, bodyColor);
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Right, bodyColor);
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Left, bodyColor);
+		Components[EmBodyPartial::Head]->printer.SetSideColor(CubePrinter::EmSideIndex::Bottom, lightColor);
 	}
 
 	void SwitchLight(bool open = true)
@@ -73,6 +88,4 @@ public:
 		LampShade* lampShade = dynamic_cast<LampShade*>(Components[EmBodyPartial::Head]);
 		lampShade->SwitchLight(open);
 	}
-
-	
 };

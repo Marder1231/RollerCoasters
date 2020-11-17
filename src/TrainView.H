@@ -80,6 +80,7 @@ public:
 		Components[0]->SetOrient(_orient);
 		Components[0]->printer.SetSideColor(CubePrinter::EmSideIndex::Top, topColor);
 		Components[0]->printer.SetSideColor(CubePrinter::EmSideIndex::Front, frontColor);
+		Components[0]->printer.DrawMethod = NPGameObject::CubePrinter::EmDrawMethod::Top;
 	}
 };
 
