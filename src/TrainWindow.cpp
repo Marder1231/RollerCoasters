@@ -225,7 +225,7 @@ advanceTrain(float dir)
 	Environment::SmokesFloat();
 	for (int i = 0; i < trainView->Trains.size(); i++)
 	{
-		trainView->Trains[i]->ShotSmoke();
+		trainView->Trains[i]->ShotSmoke(3);
 	}
 	trainView->fuckingMan.HandUp();
 

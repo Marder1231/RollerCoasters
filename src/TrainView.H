@@ -78,7 +78,7 @@ public:
 	/// <returns></returns>
 	bool SmokeFloat()
 	{
-		Pnt3f newDoDir(GoDir.x + float(rand() % 21 - 10) / 100.0f, -(GoDir.y / SmokeWeakenRate + 0.01f), GoDir.z + float(rand() % 21 - 10) / 100.0f);
+		Pnt3f newDoDir(GoDir.x + float(rand() % 41 - 20) / 60.0f, -(GoDir.y / SmokeWeakenRate + 0.01f), GoDir.z + float(rand() % 41 - 20) / 60.0f);
 		
 		Pnt3f nextPos = this->GetPosition() - newDoDir;
 		this->SetPosition(nextPos);
@@ -127,7 +127,7 @@ public:
 
 		Funnel(Pnt3f _size, BasicObject* parent, Pnt3f modifyPos, int _index) : Component(_size, parent, modifyPos, _index) { }
 
-		void ShotSmoke()
+		void ShotSmoke(int amount = 1)
 		{
 			if (WhetherShotSmoke == false)
 				return;
@@ -135,17 +135,19 @@ public:
 			if (ShotSmokeCounter > 0)
 				return;
 
-			Smoke* smoke = new Smoke(this->GetPosition(), Pnt3f(1, 1, 1), 2, this->GetViewDir());
-			int blackColor[3] = { 24, 24, 24 };
-			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Top, blackColor);
-			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Back, blackColor);
-			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Bottom, blackColor);
-			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Front, blackColor);
-			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Right, blackColor);
-			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Left, blackColor);
+			for (int i = 0; i < amount; i++)
+			{
+				Smoke* smoke = new Smoke(this->GetPosition(), Pnt3f(1, 1, 1), 2, this->GetViewDir());
+				int blackColor[3] = { 24, 24, 24 };
+				smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Top, blackColor);
+				smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Back, blackColor);
+				smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Bottom, blackColor);
+				smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Front, blackColor);
+				smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Right, blackColor);
+				smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Left, blackColor);
 
-			Environment::Smokes.push_back(smoke);
-
+				Environment::Smokes.push_back(smoke);
+			}
 			ShotSmokeCounter = ShotSmokeCounter;;
 		}
 	};
@@ -175,10 +177,10 @@ public:
 		funnel->WhetherShotSmoke = whether;
 	}
 
-	void ShotSmoke()
+	void ShotSmoke(int _amount = 1)
 	{
 		Funnel* funnel = dynamic_cast<Funnel*>(Components[EmBodyPartialIndex::Funnel]);
-		funnel->ShotSmoke();
+		funnel->ShotSmoke(_amount);
 	}
 };
 
