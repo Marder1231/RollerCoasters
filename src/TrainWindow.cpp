@@ -189,7 +189,6 @@ damageMe()
 	if (trainView->selectedCube >= ((int)m_Track.points.size()))
 		trainView->selectedCube = 0;
 
-	trainView->SetTrainPos();
 	trainView->ComputeDistance();
 	trainView->damage(1);
 }
@@ -213,15 +212,16 @@ advanceTrain(float dir)
 	{
 		Step = 0.005f;
 		trainView->m_pTrack->trainU += Step * speed->value();
-		if (trainView->m_pTrack->trainU >= 1.0f)
+		while (trainView->m_pTrack->trainU >= 1.0f)
 		{
 			trainView->m_pTrack->TurnCounter++;
 			trainView->m_pTrack->TurnCounter %= trainView->m_pTrack->points.size();
+
 			trainView->m_pTrack->trainU -= 1.0f;
 		}
-		trainView->SetTrainPos();
 	}
 
+	trainView->SetTrainPos();
 	Environment::SmokesFloat();
 	for (int i = 0; i < trainView->Trains.size(); i++)
 	{

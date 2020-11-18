@@ -114,15 +114,15 @@ void TrainView::ARCGoGo(float _speed)
 		Distance2T(Trains[i]->NowDistance, m_pTrack->TurnCounter, m_pTrack->trainU);
 	}
 }
-void TrainView::Distance2T(float& _dsitance, int& _turnCounter, float& _trainU)
+void TrainView::Distance2T(float& _distance, int& _turnCounter, float& _trainU)
 {
-	if (_dsitance < 0)
-		_dsitance += TotalDistance;
-	if (_dsitance > TotalDistance)
-		_dsitance -= TotalDistance;
+	if (_distance < 0)
+		_distance += TotalDistance;
+	if (_distance > TotalDistance)
+		_distance -= TotalDistance;
 
 	//at where
-	float computeDistance = _dsitance;
+	float computeDistance = _distance;
 	int nowControlPointIndex = 0;
 	for (int i = 0; i < m_pTrack->points.size(); i++)
 	{
@@ -131,7 +131,6 @@ void TrainView::Distance2T(float& _dsitance, int& _turnCounter, float& _trainU)
 		if (computeDistance <= 0)
 			break;
 	}
-
 	_turnCounter = nowControlPointIndex;
 	_trainU = (computeDistance + m_pTrack->PointDistances[nowControlPointIndex])
 		/ m_pTrack->PointDistances[nowControlPointIndex];
@@ -160,7 +159,7 @@ float TrainView::T2Distance(int& _turnCounter, float& _trianU)
 }
 void TrainView::ComputeDistance()
 {
-	const int clipcounter = 100;
+	const int clipcounter = 10;
 	TotalDistance = 0;
 	m_pTrack->PointDistances.clear();
 	//compute distance

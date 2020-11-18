@@ -56,7 +56,7 @@ class CTrack {
 		//###################################################################
 		// TODO: you might want to do this differently
 
-		vector<int> PointDistances;
+		vector<float> PointDistances;
 
 		//###################################################################
 
