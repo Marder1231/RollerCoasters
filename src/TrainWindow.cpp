@@ -222,6 +222,11 @@ advanceTrain(float dir)
 		trainView->SetTrainPos();
 	}
 
+	Environment::SmokesFloat();
+	for (int i = 0; i < trainView->Trains.size(); i++)
+	{
+		trainView->Trains[i]->ShotSmoke();
+	}
 	trainView->fuckingMan.HandUp();
 
 	//#####################################################################

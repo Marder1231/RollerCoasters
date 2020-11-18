@@ -46,6 +46,8 @@ class CTrack;
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
 #include <Fl/Fl_Gl_Window.h>
+#include <time.h>
+
 //#include "GL/gl.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -59,7 +61,45 @@ class CTrack;
 #include "Utilities/ArcBallCam.H"
 #include "Utilities/Pnt3f.H"
 
-#include "TestGuy.h"
+class Smoke : public GameObject
+{
+	int existCounter = 0;
+	const int existMaxTimeCounter = 624;
+public:
+	float SmokeWeakenRate = 1.0624f;
+	Pnt3f GoDir;
+
+	Smoke(float _speed, Pnt3f trainDir) : GameObject() { GoDir = Pnt3f(trainDir.x, _speed, trainDir.z); }
+	Smoke(Pnt3f _pos, Pnt3f _size, float _speed, Pnt3f trainDir) : GameObject(_pos, _size) { GoDir = Pnt3f(trainDir.x, _speed, trainDir.z); }
+
+	/// <summary>
+	/// if return false, have to destroy smoke
+	/// </summary>
+	/// <returns></returns>
+	bool SmokeFloat()
+	{
+		Pnt3f newDoDir(GoDir.x + float(rand() % 21 - 10) / 100.0f, -(GoDir.y / SmokeWeakenRate + 0.01f), GoDir.z + float(rand() % 21 - 10) / 100.0f);
+		
+		Pnt3f nextPos = this->GetPosition() - newDoDir;
+		this->SetPosition(nextPos);
+		GoDir = newDoDir;
+		GoDir.y = -newDoDir.y;
+
+		existCounter++;
+		if (existCounter >= existMaxTimeCounter)
+			return false;
+		return true;
+	}
+};
+
+//smoke must to compute in GPU
+class Environment
+{
+public:
+	static std::vector<Smoke*> Smokes;
+
+	static void SmokesFloat();
+};
 
 class Train : public GameObject
 {
@@ -68,6 +108,47 @@ public:
 	Train(Pnt3f _pos, Pnt3f _size) : GameObject(_pos, _size) { }
 
 	float NowDistance = 0;
+
+	struct EmBodyPartialIndex
+	{
+		enum _
+		{
+			Body = 0,
+			Funnel = 1,
+		};
+	};
+
+	class Funnel : public Component
+	{
+	public:
+		int ShotSmokeCounter = 0;
+		const int WhichTimeShotSmoke = 1;
+		bool WhetherShotSmoke = false;
+
+		Funnel(Pnt3f _size, BasicObject* parent, Pnt3f modifyPos, int _index) : Component(_size, parent, modifyPos, _index) { }
+
+		void ShotSmoke()
+		{
+			if (WhetherShotSmoke == false)
+				return;
+			ShotSmokeCounter--;
+			if (ShotSmokeCounter > 0)
+				return;
+
+			Smoke* smoke = new Smoke(this->GetPosition(), Pnt3f(1, 1, 1), 2, this->GetViewDir());
+			int blackColor[3] = { 24, 24, 24 };
+			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Top, blackColor);
+			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Back, blackColor);
+			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Bottom, blackColor);
+			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Front, blackColor);
+			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Right, blackColor);
+			smoke->printer.SetSideColor(CubePrinter::EmSideIndex::Left, blackColor);
+
+			Environment::Smokes.push_back(smoke);
+
+			ShotSmokeCounter = ShotSmokeCounter;;
+		}
+	};
 
 	void Init(Pnt3f _pos, Pnt3f _orient)
 	{
@@ -81,6 +162,23 @@ public:
 		Components[0]->printer.SetSideColor(CubePrinter::EmSideIndex::Top, topColor);
 		Components[0]->printer.SetSideColor(CubePrinter::EmSideIndex::Front, frontColor);
 		Components[0]->printer.DrawMethod = NPGameObject::CubePrinter::EmDrawMethod::Top;
+
+		Pnt3f funnelSize(1, 2, 1);
+		Pnt3f funnelModifyPos(0, Components[EmBodyPartialIndex::Body]->Size.y, 0);
+		Funnel* funnel = new Funnel(funnelSize, this, funnelModifyPos, EmBodyPartialIndex::Funnel);
+		AddComponent(funnel, funnel->index);
+	}
+
+	void WhetherShowSmoke(bool whether = true)
+	{
+		Funnel* funnel = dynamic_cast<Funnel*>(Components[EmBodyPartialIndex::Funnel]);
+		funnel->WhetherShotSmoke = whether;
+	}
+
+	void ShotSmoke()
+	{
+		Funnel* funnel = dynamic_cast<Funnel*>(Components[EmBodyPartialIndex::Funnel]);
+		funnel->ShotSmoke();
 	}
 };
 

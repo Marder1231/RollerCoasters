@@ -59,6 +59,8 @@ TrainView(int x, int y, int w, int h, const char* l)
 	: Fl_Gl_Window(x,y,w,h,l)
 //========================================================================
 {
+	srand(time(NULL));
+
 	mode( FL_RGB|FL_ALPHA|FL_DOUBLE | FL_STENCIL );
 
 	resetArcball();
@@ -76,9 +78,23 @@ void TrainView::Init()
 		train->Init(pos, orient);
 		Trains.push_back(train);
 	}
+	Trains[0]->WhetherShowSmoke(true);
 
 	Pnt3f manPos(0, 5, 0);
 	fuckingMan.Init(manPos);
+}
+
+std::vector<Smoke*> Environment::Smokes;
+void Environment::SmokesFloat()
+{
+	for (int i = Smokes.size() - 1; i >= 0; i--)
+	{
+		if (Smokes[i]->SmokeFloat() == false)
+		{
+			delete Smokes[i];
+			Smokes.erase(Smokes.begin() + i);
+		}
+	}
 }
 
 TrainView::~TrainView()
@@ -360,7 +376,7 @@ void TrainView::draw()
 	GLfloat grayLight[] = { .15f, .15f, .15f, 1.0 };
 
 
-	float position[] = { 0, 1, 0, 0 };
+	float position[] = { 0, 10, 0, 0 };
 	float noAmbient[] = { 0.246, 0.246, 0.246, 1 };
 	glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
@@ -799,6 +815,10 @@ void TrainView::drawStuff(bool doingShadows)
 			Trains[i]->Draws(doingShadows);
 	}
 	fuckingMan.Draws(doingShadows);
+	for (int i = 0; i < Environment::Smokes.size(); i++)
+	{
+		Environment::Smokes[i]->Draw(doingShadows);
+	}
 
 	//	call your own train drawing code
 	//####################################################################

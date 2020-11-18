@@ -68,7 +68,7 @@ public:
 		Components[EmBodyPartial::Body]->printer.SetSideColor(CubePrinter::EmSideIndex::Left, bodyColor);
 
 
-		Pnt3f headSize(2, 1, 4);
+		Pnt3f headSize(1, 1, 4);
 		Pnt3f headModifyPos(0, Components[EmBodyPartial::Body]->Size.y, 0);
 		LampShade* lampShade = new LampShade(headSize, this, headModifyPos, EmBodyPartial::Head);
 		AddComponent(lampShade, EmBodyPartial::Head);
